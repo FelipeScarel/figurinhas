@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: figurinhas-adesivas
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app -b 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WHATSAPP_NUMBER
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.0
+
+databases:
+  - name: figurinhas-db
+    plan: free

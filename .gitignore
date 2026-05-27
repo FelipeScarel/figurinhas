@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.db
+.env
+static/uploads/orders/*
+static/uploads/products/*
+!static/uploads/orders/.gitkeep
+!static/uploads/products/.gitkeep
+venv/
+.venv/
+*.egg-info/
+dist/
+.claude/
