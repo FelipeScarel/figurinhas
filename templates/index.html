@@ -44,10 +44,10 @@
                     class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-brand-600 text-white transition-all hover:bg-brand-500 active:scale-95">
                 Todos
             </button>
-            {% for cat in categories %}
+            {% for cat in categorias %}
             <button data-filter="{{ cat.slug }}"
                     class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-surface-800 text-surface-300 hover:text-white hover:bg-surface-700 transition-all active:scale-95">
-                {{ cat.name }}
+                {{ cat.nome }}
             </button>
             {% endfor %}
         </div>
@@ -55,12 +55,12 @@
 
     <!-- Masonry Grid -->
     <div id="gallery-grid" class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-        {% for product in products %}
+        {% for fig in figurinhas %}
         <div class="gallery-card break-inside-avoid group relative bg-surface-900 rounded-2xl overflow-hidden border border-surface-800 hover:border-brand-700/50 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-500/5"
-             data-category="{{ product.category_slug or 'all' }}">
+             data-categoria="{{ fig.categoria_slug or 'all' }}">
             <div class="aspect-[4/3] bg-surface-800 flex items-center justify-center text-surface-600 text-sm overflow-hidden">
-                {% if product.image_path %}
-                <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.title }}"
+                {% if fig.url_imagem %}
+                <img src="{{ url_for('static', filename=fig.url_imagem) }}" alt="{{ fig.titulo }}"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                      loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-surface-500\'>Sem imagem</span>'">
                 {% else %}
@@ -70,18 +70,30 @@
             <div class="p-4">
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
-                        <h3 class="font-semibold text-white text-sm truncate">{{ product.title }}</h3>
-                        {% if product.description %}
-                        <p class="text-surface-400 text-xs mt-1 line-clamp-2">{{ product.description }}</p>
+                        <h3 class="font-semibold text-white text-sm truncate">{{ fig.titulo }}</h3>
+                        {% if fig.descricao %}
+                        <p class="text-surface-400 text-xs mt-1 line-clamp-2">{{ fig.descricao }}</p>
                         {% endif %}
                     </div>
-                    {% if product.category_name %}
+                    {% if fig.categoria_nome %}
                     <span class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-800 text-surface-300 border border-surface-700">
-                        {{ product.category_name }}
+                        {{ fig.categoria_nome }}
                     </span>
                     {% endif %}
                 </div>
-                <button onclick="openQuoteModal({{ product.id }}, '{{ product.title|e }}', '{{ product.image_path or '' }}')"
+                <!-- Dynamic Price Badge -->
+                <div class="mt-2">
+                    {% if fig.preco and fig.preco > 0 %}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/50 text-emerald-300 text-xs font-bold border border-emerald-800/30">
+                        R$ {{ "%.2f"|format(fig.preco) }}
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-800 text-surface-400 text-xs border border-surface-700">
+                        Valor a Consultar
+                    </span>
+                    {% endif %}
+                </div>
+                <button onclick="openQuoteModal({{ fig.id }}, '{{ fig.titulo|e }}', '{{ fig.url_imagem or '' }}')"
                         class="w-full mt-3 inline-flex items-center justify-center gap-1.5 bg-brand-600/10 hover:bg-brand-600 text-brand-300 hover:text-white px-3 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95 border border-brand-700/30 hover:border-brand-600">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                     Solicitar Orçamento
@@ -111,23 +123,23 @@
         </div>
 
         <form id="quote-form-el" class="space-y-5" enctype="multipart/form-data">
-            <input type="hidden" name="reference_product_id" id="ref-product-id" value="">
+            <input type="hidden" name="referencia_figurinha_id" id="ref-product-id" value="">
 
-            <!-- Drag & Drop Upload -->
+            <!-- Multi-File Drag & Drop Upload -->
             <div>
-                <label class="block text-sm font-medium text-surface-300 mb-2">Sua Arte ou Imagem</label>
+                <label class="block text-sm font-medium text-surface-300 mb-2">Suas Artes ou Imagens <span class="text-surface-500">(até 5 arquivos)</span></label>
                 <div id="drop-zone"
                      class="relative border-2 border-dashed border-surface-700 rounded-xl p-6 sm:p-8 text-center cursor-pointer hover:border-brand-500/50 transition-colors bg-surface-800/50 group">
-                    <input type="file" name="artwork" id="artwork-input" accept=".png,.jpg,.jpeg,.pdf,.svg,.webp"
+                    <input type="file" name="artworks" id="artwork-input" accept=".png,.jpg,.jpeg,.pdf,.svg,.webp" multiple
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                     <div id="drop-content" class="pointer-events-none">
                         <svg class="w-10 h-10 mx-auto text-surface-500 group-hover:text-brand-400 transition-colors mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                        <p class="text-surface-300 text-sm font-medium">Arraste sua imagem aqui ou <span class="text-brand-400">clique para buscar</span></p>
-                        <p class="text-surface-500 text-xs mt-1">PNG, JPG, PDF ou SVG — Máx. 16MB</p>
+                        <p class="text-surface-300 text-sm font-medium">Arraste suas imagens aqui ou <span class="text-brand-400">clique para buscar</span></p>
+                        <p class="text-surface-500 text-xs mt-1">PNG, JPG, PDF ou SVG — Máx. 16MB cada — Múltiplos arquivos</p>
                     </div>
                     <div id="preview-container" class="hidden pointer-events-none mt-3">
-                        <img id="preview-img" src="" alt="Preview" class="max-h-40 mx-auto rounded-lg shadow-lg">
-                        <p id="preview-name" class="text-surface-300 text-xs mt-2"></p>
+                        <div id="preview-grid" class="flex flex-wrap gap-2 justify-center"></div>
+                        <p id="preview-count" class="text-surface-300 text-xs mt-2"></p>
                     </div>
                 </div>
             </div>
@@ -135,14 +147,14 @@
             <!-- Nome + WhatsApp row -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="customer_name" class="block text-sm font-medium text-surface-300 mb-1.5">Nome Completo *</label>
-                    <input type="text" id="customer_name" name="customer_name" required
+                    <label for="cliente_nome" class="block text-sm font-medium text-surface-300 mb-1.5">Nome Completo *</label>
+                    <input type="text" id="cliente_nome" name="cliente_nome" required
                            class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
                            placeholder="Seu nome">
                 </div>
                 <div>
-                    <label for="customer_whatsapp" class="block text-sm font-medium text-surface-300 mb-1.5">WhatsApp *</label>
-                    <input type="tel" id="customer_whatsapp" name="customer_whatsapp" required
+                    <label for="cliente_whatsapp" class="block text-sm font-medium text-surface-300 mb-1.5">WhatsApp *</label>
+                    <input type="tel" id="cliente_whatsapp" name="cliente_whatsapp" required
                            class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
                            placeholder="(11) 99999-9999" maxlength="15">
                 </div>
@@ -151,20 +163,20 @@
             <!-- Quantidade + Tamanho + Acabamento row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label for="quantity" class="block text-sm font-medium text-surface-300 mb-1.5">Quantidade *</label>
-                    <input type="number" id="quantity" name="quantity" required min="1"
+                    <label for="quantidade" class="block text-sm font-medium text-surface-300 mb-1.5">Quantidade *</label>
+                    <input type="number" id="quantidade" name="quantidade" required min="1"
                            class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
                            placeholder="Ex: 50">
                 </div>
                 <div>
-                    <label for="estimated_size" class="block text-sm font-medium text-surface-300 mb-1.5">Tamanho</label>
-                    <input type="text" id="estimated_size" name="estimated_size"
+                    <label for="tamanho_estimado" class="block text-sm font-medium text-surface-300 mb-1.5">Tamanho</label>
+                    <input type="text" id="tamanho_estimado" name="tamanho_estimado"
                            class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
                            placeholder="Ex: 5x5 cm">
                 </div>
                 <div>
-                    <label for="finish_type" class="block text-sm font-medium text-surface-300 mb-1.5">Acabamento *</label>
-                    <select id="finish_type" name="finish_type" required
+                    <label for="tipo_acabamento" class="block text-sm font-medium text-surface-300 mb-1.5">Acabamento *</label>
+                    <select id="tipo_acabamento" name="tipo_acabamento" required
                             class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22><path stroke=%22%2394a3b8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M6 8l4 4 4-4%22/></svg>')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat pr-10">
                         <option value="">Selecione...</option>
                         <option value="Brilhante">Brilhante</option>
@@ -175,12 +187,24 @@
                 </div>
             </div>
 
-            <!-- Observações -->
-            <div>
-                <label for="notes" class="block text-sm font-medium text-surface-300 mb-1.5">Observações</label>
-                <textarea id="notes" name="notes" rows="2"
-                          class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all resize-none"
-                          placeholder="Algum detalhe adicional sobre seu pedido..."></textarea>
+            <!-- Urgency + Observations row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="urgencia" class="block text-sm font-medium text-surface-300 mb-1.5">Para quando você precisa?</label>
+                    <select id="urgencia" name="urgencia"
+                            class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22><path stroke=%22%2394a3b8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M6 8l4 4 4-4%22/></svg>')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat pr-10">
+                        <option value="">Sem pressa / Normal</option>
+                        <option value="Esta semana">Esta semana</option>
+                        <option value="Urgente - 3 dias">Urgente - 3 dias</option>
+                        <option value="Urgentíssimo - 24h">Urgentíssimo - 24h</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="observacoes" class="block text-sm font-medium text-surface-300 mb-1.5">Observações</label>
+                    <textarea id="observacoes" name="observacoes" rows="2"
+                              class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all resize-none"
+                              placeholder="Algum detalhe adicional sobre seu pedido..."></textarea>
+                </div>
             </div>
 
             <!-- Submit -->
@@ -194,6 +218,67 @@
                 Ao enviar, você será redirecionado para o WhatsApp com o resumo do pedido.
             </p>
         </form>
+    </div>
+</section>
+
+<!-- Testimonials / Social Proof -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <div class="text-center mb-10">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white">Clientes Satisfeitos</h2>
+        <p class="text-surface-400 text-sm mt-1">Quem usa recomenda</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Depoimento 1 -->
+        <div class="bg-surface-900 border border-surface-800 rounded-2xl p-6 hover:border-surface-700 transition-all">
+            <div class="flex items-center gap-1 mb-4 text-yellow-400">
+                &#9733;&#9733;&#9733;&#9733;&#9733;
+            </div>
+            <p class="text-surface-300 text-sm leading-relaxed mb-4">
+                "As figurinhas ficaram insanas no capacete! O acabamento refletivo deu um toque premium e a entrega foi super rápida."
+            </p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">RL</div>
+                <div>
+                    <p class="text-white text-sm font-semibold">Ricardo L.</p>
+                    <p class="text-surface-500 text-xs">Capacete LS2 + Moto Hornet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depoimento 2 -->
+        <div class="bg-surface-900 border border-surface-800 rounded-2xl p-6 hover:border-surface-700 transition-all">
+            <div class="flex items-center gap-1 mb-4 text-yellow-400">
+                &#9733;&#9733;&#9733;&#9733;&#9733;
+            </div>
+            <p class="text-surface-300 text-sm leading-relaxed mb-4">
+                "Pedimos o combo de figurinhas para 3 capacetes iguais. Ficou perfeito! O pessoal do rolê todo elogiou demais."
+            </p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm">MA</div>
+                <div>
+                    <p class="text-white text-sm font-semibold">Marcos A.</p>
+                    <p class="text-surface-500 text-xs">Turma do Grau ZN</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depoimento 3 -->
+        <div class="bg-surface-900 border border-surface-800 rounded-2xl p-6 hover:border-surface-700 transition-all">
+            <div class="flex items-center gap-1 mb-4 text-yellow-400">
+                &#9733;&#9733;&#9733;&#9733;&#9733;
+            </div>
+            <p class="text-surface-300 text-sm leading-relaxed mb-4">
+                "Mandei minha própria arte e eles reproduziram exatamente como eu queria. Qualidade absurda, já vou pedir mais!"
+            </p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">JF</div>
+                <div>
+                    <p class="text-white text-sm font-semibold">Juliana F.</p>
+                    <p class="text-surface-500 text-xs">Notebook + Capa de Celular</p>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

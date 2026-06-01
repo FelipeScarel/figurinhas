@@ -10,8 +10,8 @@ def seed_admin():
         print(f"[SEED] Admin '{Config.ADMIN_USERNAME}' criado.")
 
 
-def seed_categories():
-    categories = [
+def seed_categorias():
+    categorias = [
         ("Grau e Empinamento", "grau"),
         ("Capacetes Esportivos", "capacetes"),
         ("Marcas e Logos", "marcas"),
@@ -19,17 +19,17 @@ def seed_categories():
         ("Cascatas e Manobras", "cascatas"),
         ("Corte de Giro", "corte-de-giro"),
     ]
-    for name, slug in categories:
-        existing = query_db("SELECT id FROM categories WHERE slug = ?", (slug,), one=True)
+    for nome, slug in categorias:
+        existing = query_db("SELECT id FROM categorias WHERE slug = ?", (slug,), one=True)
         if not existing:
             query_db(
-                "INSERT INTO categories (name, slug) VALUES (?, ?)",
-                (name, slug),
+                "INSERT INTO categorias (nome, slug) VALUES (?, ?)",
+                (nome, slug),
                 commit=True,
             )
-            print(f"[SEED] Categoria '{name}' criada.")
+            print(f"[SEED] Categoria '{nome}' criada.")
 
 
 def seed_all():
     seed_admin()
-    seed_categories()
+    seed_categorias()

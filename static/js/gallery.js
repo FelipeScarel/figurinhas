@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let visible = 0;
 
       cards.forEach((card) => {
-        const cat = card.dataset.category;
+        const cat = card.dataset.categoria;
         if (filter === "all" || cat === filter) {
           card.style.display = "";
           visible++;
@@ -30,12 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Quote modal
-function openQuoteModal(productId, productTitle, imagePath) {
+function openQuoteModal(figId, figTitle, imagePath) {
   const modal = document.getElementById("quote-modal");
   document.getElementById("modal-title").textContent =
-    "Orçamento: " + productTitle;
-  document.getElementById("modal-product-name").textContent = productTitle;
-  document.getElementById("ref-product-id").dataset.modalId = productId;
+    "Orçamento: " + figTitle;
+  document.getElementById("modal-product-name").textContent = figTitle;
+  document.getElementById("ref-product-id").dataset.modalId = figId;
 
   const thumb = document.getElementById("modal-thumb");
   if (imagePath) {

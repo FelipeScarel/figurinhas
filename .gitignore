@@ -2,10 +2,10 @@ __pycache__/
 *.py[cod]
 *.db
 .env
-static/uploads/orders/*
-static/uploads/products/*
-!static/uploads/orders/.gitkeep
-!static/uploads/products/.gitkeep
+static/uploads/pedidos/*
+static/uploads/produtos/*
+!static/uploads/pedidos/.gitkeep
+!static/uploads/produtos/.gitkeep
 venv/
 .venv/
 *.egg-info/

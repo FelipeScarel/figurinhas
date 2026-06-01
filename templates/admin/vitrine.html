@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Vitrine — Figurinhas Adesivas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843',950:'#500724' },
+                        surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',850:'#172033',900:'#0f172a',950:'#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body class="bg-surface-950 text-white font-sans antialiased min-h-screen">
+
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 bg-surface-900/95 backdrop-blur-sm border-b border-surface-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-extrabold text-sm shadow-lg shadow-brand-500/25">FS</div>
+                        <span class="font-bold text-white hidden sm:inline">Admin</span>
+                    </div>
+                    <a href="/admin/dashboard" class="text-sm font-medium text-surface-400 hover:text-white transition-colors">Pedidos</a>
+                    <a href="/admin/vitrine" class="text-sm font-medium text-brand-400 border-b-2 border-brand-500 pb-0.5">Vitrine</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-surface-400 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
+                    <a href="/" class="text-surface-400 hover:text-white text-xs transition-colors">Site</a>
+                    <a href="{{ url_for('auth.logout') }}" class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors">Sair</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Gerenciar Vitrine</h1>
+                <p class="text-surface-400 text-sm mt-1">{{ categorias|length }} categorias disponíveis</p>
+            </div>
+            <button onclick="openVitrineForm()"
+                    class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-brand-600/20 active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nova Figurinha
+            </button>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="flex items-center gap-2 overflow-x-auto mb-6 pb-1">
+            <button data-vitrine-filter="all"
+                    class="vitrine-filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-brand-600 text-white transition-all hover:bg-brand-500 active:scale-95">
+                Todos
+            </button>
+            {% for cat in categorias %}
+            <button data-vitrine-filter="{{ cat.slug }}"
+                    class="vitrine-filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-surface-800 text-surface-300 hover:text-white hover:bg-surface-700 transition-all active:scale-95">
+                {{ cat.nome }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Figurinhas Grid (Admin View) -->
+        <div id="vitrine-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="col-span-full text-center py-12 text-surface-500">
+                <span class="spinner inline-block w-5 h-5 border-2 border-surface-600 border-t-brand-500 rounded-full"></span>
+            </div>
+        </div>
+
+        <div id="vitrine-empty" class="hidden text-center py-16">
+            <p class="text-surface-400">Nenhuma figurinha cadastrada.</p>
+        </div>
+    </div>
+
+    <!-- Figurinha Form Modal -->
+    <div id="vitrine-modal" class="fixed inset-0 z-[90] hidden bg-surface-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-surface-900 border border-surface-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white" id="vitrine-modal-title">Nova Figurinha</h3>
+                <button onclick="closeVitrineForm()" class="text-surface-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <form id="vitrine-form" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" id="vitrine-edit-id" value="">
+                <div>
+                    <label class="block text-sm font-medium text-surface-300 mb-1.5">Imagem / Mockup</label>
+                    <div class="relative border-2 border-dashed border-surface-700 rounded-xl p-4 text-center cursor-pointer hover:border-brand-500/50 transition-colors bg-surface-800/50" id="vitrine-drop-zone">
+                        <input type="file" name="imagem" id="vitrine-imagem-input" accept=".png,.jpg,.jpeg,.webp"
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div id="vitrine-drop-content" class="pointer-events-none">
+                            <svg class="w-8 h-8 mx-auto text-surface-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-surface-400 text-xs">Clique para upload da imagem</p>
+                        </div>
+                        <img id="vitrine-preview-img" src="" class="hidden max-h-32 mx-auto rounded-lg mt-2 pointer-events-none">
+                    </div>
+                </div>
+                <div>
+                    <label for="vitrine-titulo" class="block text-sm font-medium text-surface-300 mb-1.5">Título *</label>
+                    <input type="text" id="vitrine-titulo" name="titulo" required
+                           class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                           placeholder="Ex: Adesivo Grau 45°">
+                </div>
+                <div>
+                    <label for="vitrine-descricao" class="block text-sm font-medium text-surface-300 mb-1.5">Descrição</label>
+                    <textarea id="vitrine-descricao" name="descricao" rows="2"
+                              class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all resize-none"
+                              placeholder="Onde colar, durabilidade, detalhes..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="vitrine-categoria" class="block text-sm font-medium text-surface-300 mb-1.5">Categoria</label>
+                        <select id="vitrine-categoria" name="categoria_id"
+                                class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all">
+                            <option value="">Nenhuma</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="vitrine-preco" class="block text-sm font-medium text-surface-300 mb-1.5">Preço (R$)</label>
+                        <input type="number" id="vitrine-preco" name="preco" step="0.01" min="0"
+                               class="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                               placeholder="Ex: 12.00">
+                    </div>
+                </div>
+                <div id="vitrine-active-field" class="hidden">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="vitrine-is-active" name="is_active" value="1" checked
+                               class="w-4 h-4 rounded bg-surface-800 border-surface-600 text-brand-600 focus:ring-brand-500">
+                        <span class="text-sm text-surface-300">Ativo na vitrine</span>
+                    </label>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" id="vitrine-submit-btn"
+                            class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]">
+                        Salvar
+                    </button>
+                    <button type="button" onclick="closeVitrineForm()"
+                            class="flex-1 bg-surface-800 hover:bg-surface-700 text-white font-medium py-2.5 rounded-xl transition-all text-sm">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script src="{{ url_for('static', filename='js/admin-vitrine.js') }}"></script>
+</body>
+</html>

@@ -4,27 +4,29 @@ from config import Config
 
 def generate_whatsapp_message(order_data):
     lines = [
-        "🎨 *NOVO PEDIDO DE ORÇAMENTO* 🎨",
+        "\U0001F3A8 *NOVO PEDIDO DE ORÇAMENTO* \U0001F3A8",
         "",
-        f"*Cliente:* {order_data['customer_name']}",
-        f"*WhatsApp:* {order_data['customer_whatsapp']}",
-        f"*Quantidade:* {order_data['quantity']} unidades",
-        f"*Tamanho:* {order_data.get('estimated_size', 'Não informado')}",
-        f"*Acabamento:* {order_data['finish_type']}",
+        f"*Cliente:* {order_data['cliente_nome']}",
+        f"*WhatsApp:* {order_data['cliente_whatsapp']}",
+        f"*Quantidade:* {order_data['quantidade']} unidades",
+        f"*Tamanho:* {order_data.get('tamanho_estimado', 'Não informado')}",
+        f"*Acabamento:* {order_data['tipo_acabamento']}",
     ]
 
-    if order_data.get("reference_product_id"):
-        lines.append(f"*Modelo Ref:* #{order_data['reference_product_id']}")
+    if order_data.get("urgencia"):
+        lines.append(f"*Urgência:* {order_data['urgencia']}")
 
-    if order_data.get("notes"):
-        lines.append(f"*Observações:* {order_data['notes']}")
+    if order_data.get("referencia_figurinha_id"):
+        lines.append(f"*Modelo Ref:* #{order_data['referencia_figurinha_id']}")
 
-    if order_data.get("artwork_path"):
-        lines.append("")
-        lines.append("📎 _Arte enviada pelo cliente_")
+    if order_data.get("observacoes"):
+        lines.append(f"*Observações:* {order_data['observacoes']}")
+
+    if order_data.get("arquivos_count"):
+        lines.append(f"\U0001F4CE *{order_data['arquivos_count']} arquivo(s) enviado(s)*")
 
     lines.append("")
-    lines.append(f"🆔 Pedido #{order_data.get('order_id', 'NOVO')}")
+    lines.append(f"\U0001F194 Pedido #{order_data.get('order_id', 'NOVO')}")
 
     message = "\n".join(lines)
     encoded = urllib.parse.quote(message)

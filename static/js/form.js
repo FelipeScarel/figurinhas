@@ -1,6 +1,6 @@
 // Phone mask and form submission
 document.addEventListener("DOMContentLoaded", () => {
-  const whatsappInput = document.getElementById("customer_whatsapp");
+  const whatsappInput = document.getElementById("cliente_whatsapp");
   const form = document.getElementById("quote-form-el");
   const submitBtn = document.getElementById("submit-btn");
   const refProductId = document.getElementById("ref-product-id");
@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Disable button
       submitBtn.disabled = true;
       submitBtn.innerHTML =
         '<span class="spinner inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"></span> Enviando...';
@@ -35,13 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (
         refProductId &&
         refProductId.dataset.modalId &&
-        !formData.get("reference_product_id")
+        !formData.get("referencia_figurinha_id")
       ) {
-        formData.set("reference_product_id", refProductId.dataset.modalId);
+        formData.set("referencia_figurinha_id", refProductId.dataset.modalId);
       }
 
       try {
-        const response = await fetch("/api/orders", {
+        const response = await fetch("/api/pedidos", {
           method: "POST",
           body: formData,
         });
@@ -49,23 +48,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (data.success) {
-          // Redirect to WhatsApp
           window.open(data.whatsapp_link, "_blank");
 
-          // Reset form
           form.reset();
-          document
-            .getElementById("drop-content")
-            ?.classList.remove("hidden");
-          document
-            .getElementById("preview-container")
-            ?.classList.add("hidden");
+          const dropContent = document.getElementById("drop-content");
+          const previewContainer = document.getElementById("preview-container");
+          if (dropContent) dropContent.classList.remove("hidden");
+          if (previewContainer) previewContainer.classList.add("hidden");
           if (refProductId) {
             refProductId.value = "";
             refProductId.dataset.modalId = "";
           }
 
-          showToast("Pedido enviado! Redirecionando para o WhatsApp...", "success");
+          showToast(
+            `Pedido #${data.order_id} enviado com ${data.arquivos_count} arquivo(s)! Redirecionando para WhatsApp...`,
+            "success"
+          );
         } else {
           const errors = data.errors || ["Erro ao enviar pedido."];
           showToast(errors.join("<br>"), "error");
@@ -99,5 +97,5 @@ function showToast(message, type) {
     toast.style.opacity = "0";
     toast.style.transform = "translate(-50%, 10px)";
     setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  }, 5000);
 }

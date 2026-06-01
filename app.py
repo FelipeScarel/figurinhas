@@ -11,8 +11,8 @@ def create_app():
     import os
 
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-    os.makedirs(os.path.join(Config.UPLOAD_FOLDER, "products"), exist_ok=True)
-    os.makedirs(os.path.join(Config.UPLOAD_FOLDER, "orders"), exist_ok=True)
+    os.makedirs(os.path.join(Config.UPLOAD_FOLDER, "produtos"), exist_ok=True)
+    os.makedirs(os.path.join(Config.UPLOAD_FOLDER, "pedidos"), exist_ok=True)
 
     # Database init
     init_db()
