@@ -6,15 +6,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Upload, Send, X, Sun, Moon, Minimize2, Maximize2, Crosshair, MousePointer2 } from "lucide-react";
 
+type FinishType = "Brilhante" | "Fosco" | "Refletivo" | "Holográfico";
+
 interface UploadPanelProps {
   textureUrl: string | null;
   helmetColor: "white" | "black";
   decalScale: number;
   decalPosition: "front" | "top" | "left" | "right" | "back";
+  finishType: FinishType;
   onColorChange: (c: "white" | "black") => void;
   onTextureUpload: (url: string) => void;
   onScaleChange: (s: number) => void;
   onDecalPositionChange: (p: "front" | "top" | "left" | "right" | "back") => void;
+  onFinishChange: (f: FinishType) => void;
   className?: string;
 }
 
@@ -26,15 +30,24 @@ const POSITIONS = [
   { key: "back" as const, label: "Atrás", emoji: "🔙" },
 ];
 
+const FINISHES: { key: FinishType; emoji: string; label: string }[] = [
+  { key: "Brilhante", emoji: "✨", label: "Brilhante" },
+  { key: "Fosco", emoji: "🌫️", label: "Fosco" },
+  { key: "Refletivo", emoji: "💎", label: "Refletivo" },
+  { key: "Holográfico", emoji: "🌈", label: "Holográfico" },
+];
+
 export default function UploadPanel({
   textureUrl,
   helmetColor,
   decalScale,
   decalPosition,
+  finishType,
   onColorChange,
   onTextureUpload,
   onScaleChange,
   onDecalPositionChange,
+  onFinishChange,
   className,
 }: UploadPanelProps) {
   const [files, setFiles] = useState<File[]>([]);
@@ -143,6 +156,30 @@ export default function UploadPanel({
           )}
         </div>
       </div>
+
+      {/* ── Finish type ── */}
+      {textureUrl && (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-1.5">
+          <label className="text-xs font-medium text-zinc-400 block">Acabamento do Adesivo</label>
+          <div className="grid grid-cols-4 gap-1">
+            {FINISHES.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => onFinishChange(f.key)}
+                className={cn(
+                  "py-2 rounded-lg text-center transition-all",
+                  finishType === f.key
+                    ? "bg-pink-600/15 border border-pink-500/40 text-pink-300"
+                    : "bg-zinc-900 border border-zinc-800 text-zinc-500 hover:border-zinc-700"
+                )}
+              >
+                <span className="text-sm block">{f.emoji}</span>
+                <span className="text-[10px] font-medium">{f.label}</span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Position selector ── */}
       {textureUrl && (

@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { DecalGeometry } from "three/examples/jsm/geometries/DecalGeometry.js";
 
 // ── Props ──────────────────────────────────────────────────
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   helmetColor: "white" | "black";
   decalScale: number;
   decalPosition: "front" | "top" | "left" | "right" | "back";
+  finishType: "Brilhante" | "Fosco" | "Refletivo" | "Holográfico";
   onDecalPositionChange: (p: "front" | "top" | "left" | "right" | "back") => void;
   className?: string;
 }
@@ -50,7 +52,7 @@ function createStudioEnv(r: THREE.WebGLRenderer): THREE.Texture {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PBR MATERIALS
+// PBR MATERIALS FOR HELMET
 // ═══════════════════════════════════════════════════════════
 function applyPBR(obj: THREE.Group, color: "white" | "black", envMap: THREE.Texture) {
   const isWhite = color === "white";
@@ -70,24 +72,61 @@ function applyPBR(obj: THREE.Group, color: "white" | "black", envMap: THREE.Text
 }
 
 // ═══════════════════════════════════════════════════════════
-// DECAL POSITION RAYCAST DIRECTIONS
+// DECAL MATERIAL (VINYL STICKER)
 // ═══════════════════════════════════════════════════════════
-const POSITION_RAYS: Record<string, THREE.Vector3> = {
-  front: new THREE.Vector3(0, 0.2, 1),
-  top: new THREE.Vector3(0, 1, 0),
-  left: new THREE.Vector3(-1, 0.2, 0),
-  right: new THREE.Vector3(1, 0.2, 0),
-  back: new THREE.Vector3(0, 0.2, -1),
+function createDecalMaterial(
+  finish: "Brilhante" | "Fosco" | "Refletivo" | "Holográfico",
+  envMap: THREE.Texture
+): THREE.MeshStandardMaterial {
+  const roughness =
+    finish === "Fosco" ? 0.35 : finish === "Brilhante" ? 0.15 : 0.12;
+
+  const metalness =
+    finish === "Refletivo" ? 0.8 : finish === "Holográfico" ? 0.6 : 0.05;
+
+  // Holographic: add a subtle color-shift via emissive
+  const emissive = finish === "Holográfico" ? "#8b5cf6" : "#000000";
+  const emissiveIntensity = finish === "Holográfico" ? 0.15 : 0;
+
+  return new THREE.MeshStandardMaterial({
+    map: null,
+    transparent: true,
+    alphaTest: 0.05,        // discard near-transparent pixels → no white borders
+    depthTest: true,
+    depthWrite: true,
+    polygonOffset: true,
+    polygonOffsetFactor: -5,  // 0.01mm effective offset
+    polygonOffsetUnits: -1,
+    roughness,
+    metalness,
+    emissive,
+    emissiveIntensity,
+    envMap: metalness > 0.5 ? envMap : null,
+    envMapIntensity: metalness > 0.5 ? 1.0 : 0,
+    side: THREE.FrontSide,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RAYCAST DIRECTIONS
+// ═══════════════════════════════════════════════════════════
+const RAYS: Record<string, THREE.Vector3> = {
+  front: new THREE.Vector3(0, 0.15, 1),
+  top: new THREE.Vector3(0, 1, 0.05),
+  left: new THREE.Vector3(-1, 0.15, 0),
+  right: new THREE.Vector3(1, 0.15, 0),
+  back: new THREE.Vector3(0, 0.15, -1),
 };
 
 // ═══════════════════════════════════════════════════════════
-// MAIN
+// MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════
 export default function Simulador3D({
   textureUrl,
   helmetColor,
   decalScale,
   decalPosition,
+  finishType,
   onDecalPositionChange,
   className,
 }: Props) {
@@ -101,22 +140,20 @@ export default function Simulador3D({
   const envRef = useRef<THREE.Texture | null>(null);
   const animRef = useRef(0);
 
-  // Rotation state (drag with momentum)
   const rotRef = useRef({ x: 0, y: 0 });
   const velRef = useRef({ x: 0, y: 0 });
   const dragRef = useRef({ active: false, prevX: 0, prevY: 0 });
-  const autoRotateRef = useRef(true);
+  const autoRef = useRef(true);
 
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [mode, setMode] = useState<"rotate" | "place">("rotate");
 
   useEffect(() => setMounted(true), []);
 
-  // ── Create / update decal mesh ───────────────────────────
+  // ── Place decal using DecalGeometry ──────────────────────
   const placeDecal = useCallback(
-    (point: THREE.Vector3, normal: THREE.Vector3, targetMesh: THREE.Mesh) => {
-      if (!sceneRef.current || !textureUrl) return;
+    (hitPoint: THREE.Vector3, hitNormal: THREE.Vector3, hitMesh: THREE.Mesh) => {
+      if (!sceneRef.current || !textureUrl || !envRef.current) return;
 
       // Remove old decal
       if (decalRef.current) {
@@ -126,52 +163,53 @@ export default function Simulador3D({
         decalRef.current = null;
       }
 
-      // Create decal plane aligned with surface
-      const s = decalScale * 0.5;
-      const geo = new THREE.PlaneGeometry(s, s);
+      const size = decalScale * 0.45; // base size, scaled by user control
 
-      // Align plane to surface normal
+      // Compute orientation from surface normal
+      const up = new THREE.Vector3(0, 1, 0);
       const quat = new THREE.Quaternion();
-      quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal.clone().normalize());
+      quat.setFromUnitVectors(up, hitNormal.clone().normalize());
 
-      const mat = new THREE.MeshStandardMaterial({
-        map: null,
-        transparent: true,
-        opacity: 0.92,
-        side: THREE.DoubleSide,
-        roughness: 0.15,
-        metalness: 0,
-        depthWrite: true,
-        polygonOffset: true,
-        polygonOffsetFactor: -4,
-      });
+      // Create DecalGeometry that wraps onto the mesh surface
+      const decalGeo = new DecalGeometry(
+        hitMesh,                           // target mesh
+        hitPoint,                          // world position
+        new THREE.Euler().setFromQuaternion(quat), // orientation from normal
+        new THREE.Vector3(size, size, 0.015) // width, height, depth (0.015mm thick)
+      );
 
-      const decal = new THREE.Mesh(geo, mat);
-      decal.position.copy(point.clone().add(normal.clone().multiplyScalar(0.005)));
-      decal.quaternion.copy(quat);
+      const decalMat = createDecalMaterial(finishType, envRef.current);
+
+      const decal = new THREE.Mesh(decalGeo, decalMat);
       decal.name = "decal";
-
-      // Apply texture
-      new THREE.TextureLoader().load(textureUrl, (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        (decal.material as THREE.MeshStandardMaterial).map = tex;
-        (decal.material as THREE.MeshStandardMaterial).needsUpdate = true;
-      });
+      decal.renderOrder = 1;
+      decal.material.depthTest = true;
 
       sceneRef.current.add(decal);
       decalRef.current = decal;
+
+      // Load texture
+      new THREE.TextureLoader().load(textureUrl, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.premultiplyAlpha = true;        // correct alpha blending
+        const mat = decal.material as THREE.MeshStandardMaterial;
+        if (mat.map) mat.map.dispose();
+        mat.map = tex;
+        mat.needsUpdate = true;
+      });
     },
-    [textureUrl, decalScale]
+    [textureUrl, decalScale, finishType]
   );
 
-  // ── Raycast to position decal ─────────────────────────────
+  // ── Raycast to find surface point ────────────────────────
   const raycastPlace = useCallback(
     (direction: THREE.Vector3) => {
-      if (!modelRef.current || !cameraRef.current || !textureUrl) return;
-      const raycaster = new THREE.Raycaster();
+      if (!modelRef.current || !textureUrl) return;
       const dir = direction.clone().normalize();
-      const origin = dir.clone().multiplyScalar(-3);
+      const origin = dir.clone().multiplyScalar(-4);
+      const raycaster = new THREE.Raycaster();
       raycaster.set(origin, dir);
+      raycaster.far = 8;
       const hits = raycaster.intersectObjects(modelRef.current.children, true);
       if (hits.length > 0) {
         placeDecal(hits[0].point, hits[0].face?.normal || dir.clone().multiplyScalar(-1), hits[0].object as THREE.Mesh);
@@ -180,18 +218,26 @@ export default function Simulador3D({
     [textureUrl, placeDecal]
   );
 
-  // ── Place decal when position or texture changes ──────────
+  // ── Re-place on position/texture/finish change ───────────
   useEffect(() => {
-    if (!textureUrl) return;
-    const dir = POSITION_RAYS[decalPosition];
+    if (!textureUrl || status !== "ready") return;
+    const dir = RAYS[decalPosition];
     if (dir) {
-      // Small delay to ensure model is loaded
-      const t = setTimeout(() => raycastPlace(dir), 100);
+      const t = setTimeout(() => raycastPlace(dir), 150);
       return () => clearTimeout(t);
     }
-  }, [textureUrl, decalPosition, raycastPlace]);
+  }, [textureUrl, decalPosition, finishType, status]);
 
-  // ── Init scene ──────────────────────────────────────────
+  useEffect(() => {
+    if (!textureUrl || status !== "ready") return;
+    const dir = RAYS[decalPosition];
+    if (dir) {
+      const t = setTimeout(() => raycastPlace(dir), 50);
+      return () => clearTimeout(t);
+    }
+  }, [decalScale]);
+
+  // ── Init ────────────────────────────────────────────────
   useEffect(() => {
     if (!mounted || !canvasRef.current || !containerRef.current) return;
     const container = containerRef.current;
@@ -262,12 +308,12 @@ export default function Simulador3D({
       () => setStatus("error")
     );
 
-    // ── Pointer events (drag to rotate) ──────────────────
+    // ── Drag rotation ────────────────────────────────────
     function onDown(e: PointerEvent) {
       dragRef.current.active = true;
       dragRef.current.prevX = e.clientX;
       dragRef.current.prevY = e.clientY;
-      autoRotateRef.current = false;
+      autoRef.current = false;
       velRef.current.x = 0;
       velRef.current.y = 0;
       container.setPointerCapture(e.pointerId);
@@ -287,29 +333,11 @@ export default function Simulador3D({
     function onUp() {
       dragRef.current.active = false;
     }
-    function onClick(e: MouseEvent) {
-      // Only trigger place if it was a click (no significant drag) and in place mode
-      if (Math.abs(velRef.current.y) > 0.02 || Math.abs(velRef.current.x) > 0.02) return;
-      if (mode !== "place" || !textureUrl || !modelRef.current || !cameraRef.current) return;
-
-      const rect = container.getBoundingClientRect();
-      const mouse = new THREE.Vector2(
-        ((e.clientX - rect.left) / rect.width) * 2 - 1,
-        -((e.clientY - rect.top) / rect.height) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, cameraRef.current);
-      const hits = raycaster.intersectObjects(modelRef.current.children, true);
-      if (hits.length > 0) {
-        placeDecal(hits[0].point, hits[0].face?.normal || new THREE.Vector3(0, 0, 1), hits[0].object as THREE.Mesh);
-      }
-    }
 
     container.addEventListener("pointerdown", onDown);
     container.addEventListener("pointermove", onMove);
     container.addEventListener("pointerup", onUp);
     container.addEventListener("pointerleave", onUp);
-    container.addEventListener("click", onClick);
 
     function resize() {
       const r = container.getBoundingClientRect();
@@ -323,15 +351,10 @@ export default function Simulador3D({
 
     function anim() {
       animRef.current = requestAnimationFrame(anim);
-      if (!modelRef.current) {
-        renderer.render(scene, camera);
-        return;
-      }
-      // Apply rotation with momentum
+      if (!modelRef.current) { renderer.render(scene, camera); return; }
       if (!dragRef.current.active) {
-        if (autoRotateRef.current) {
-          rotRef.current.y += 0.003;
-        } else {
+        if (autoRef.current) rotRef.current.y += 0.003;
+        else {
           rotRef.current.y += velRef.current.y;
           rotRef.current.x += velRef.current.x;
           velRef.current.y *= 0.95;
@@ -353,7 +376,6 @@ export default function Simulador3D({
       container.removeEventListener("pointermove", onMove);
       container.removeEventListener("pointerup", onUp);
       container.removeEventListener("pointerleave", onUp);
-      container.removeEventListener("click", onClick);
       window.removeEventListener("resize", resize);
       renderer.dispose();
     };
@@ -364,16 +386,6 @@ export default function Simulador3D({
     if (!modelRef.current || !envRef.current) return;
     applyPBR(modelRef.current, helmetColor, envRef.current);
   }, [helmetColor]);
-
-  // ── Re-place decal on scale change ──────────────────────
-  useEffect(() => {
-    if (!textureUrl) return;
-    const dir = POSITION_RAYS[decalPosition];
-    if (dir) {
-      const t = setTimeout(() => raycastPlace(dir), 50);
-      return () => clearTimeout(t);
-    }
-  }, [decalScale]);
 
   // ── Render ─────────────────────────────────────────────
   if (!mounted) return <div className={className} style={{ background: "#0a0a0c" }} />;
@@ -395,21 +407,7 @@ export default function Simulador3D({
           </div>
         </div>
       )}
-
-      {/* Mode indicator */}
-      {status === "ready" && (
-        <div style={{
-          position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20,
-          background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
-          borderRadius: 20, padding: "4px 12px", fontSize: 11, color: "#a1a1aa",
-          display: "flex", alignItems: "center", gap: 6,
-        }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: mode === "place" ? "#ec4899" : "#52525b" }} />
-          {mode === "rotate" ? "Arraste para girar" : "Clique no capacete para posicionar"}
-        </div>
-      )}
-
-      <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%", cursor: mode === "place" ? "crosshair" : "grab" }} />
+      <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%", cursor: "grab" }} />
     </div>
   );
 }
