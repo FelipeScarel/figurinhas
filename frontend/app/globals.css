@@ -4,76 +4,65 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --background: 0 0% 0%;
+    --foreground: 240 5% 96%;
+    --card: 240 4% 5%;
+    --card-foreground: 240 5% 96%;
+    --popover: 240 4% 5%;
+    --popover-foreground: 240 5% 96%;
     --primary: 330 81% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 12%;
+    --secondary-foreground: 240 5% 84%;
+    --muted: 240 4% 12%;
+    --muted-foreground: 240 3% 60%;
+    --accent: 240 4% 12%;
+    --accent-foreground: 240 5% 84%;
     --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 12%;
+    --input: 240 4% 12%;
     --ring: 330 81% 60%;
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-black text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 2px; }
+}
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
+@layer components {
+  .glass {
+    @apply bg-zinc-900/60 backdrop-blur-2xl border border-zinc-800/50;
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  .glass-light {
+    @apply bg-zinc-900/40 backdrop-blur-xl border border-zinc-700/30;
   }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(217.2, 32.6%, 25%);
-    border-radius: 3px;
+  .text-gradient {
+    @apply bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-transparent;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(217.2, 32.6%, 35%);
+  .text-gradient-pink {
+    @apply bg-gradient-to-r from-pink-400 via-pink-500 to-purple-400 bg-clip-text text-transparent;
+  }
+  .glow {
+    box-shadow: 0 0 40px -10px rgba(236, 72, 153, 0.3),
+                0 0 80px -20px rgba(139, 92, 246, 0.15);
+  }
+  .glow-sm {
+    box-shadow: 0 0 20px -5px rgba(236, 72, 153, 0.2);
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary via-pink-400 to-purple-400 bg-clip-text text-transparent;
+  .mask-radial {
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 70%);
   }
-
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
-  }
-
-  .glass-strong {
-    @apply bg-white/10 backdrop-blur-2xl border border-white/20;
-  }
-}
-
-/* Spline canvas full bleed */
-.spline-canvas canvas {
-  display: block !important;
 }
