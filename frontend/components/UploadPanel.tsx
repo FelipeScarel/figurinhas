@@ -4,25 +4,37 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, X, Sun, Moon, Maximize2, Minimize2 } from "lucide-react";
+import { Upload, Send, X, Sun, Moon, Minimize2, Maximize2, Crosshair, MousePointer2 } from "lucide-react";
 
 interface UploadPanelProps {
   textureUrl: string | null;
   helmetColor: "white" | "black";
   decalScale: number;
+  decalPosition: "front" | "top" | "left" | "right" | "back";
   onColorChange: (c: "white" | "black") => void;
   onTextureUpload: (url: string) => void;
   onScaleChange: (s: number) => void;
+  onDecalPositionChange: (p: "front" | "top" | "left" | "right" | "back") => void;
   className?: string;
 }
+
+const POSITIONS = [
+  { key: "front" as const, label: "Frente", emoji: "🧑" },
+  { key: "top" as const, label: "Topo", emoji: "⬆️" },
+  { key: "left" as const, label: "Lado Esq", emoji: "👈" },
+  { key: "right" as const, label: "Lado Dir", emoji: "👉" },
+  { key: "back" as const, label: "Atrás", emoji: "🔙" },
+];
 
 export default function UploadPanel({
   textureUrl,
   helmetColor,
   decalScale,
+  decalPosition,
   onColorChange,
   onTextureUpload,
   onScaleChange,
+  onDecalPositionChange,
   className,
 }: UploadPanelProps) {
   const [files, setFiles] = useState<File[]>([]);
@@ -51,7 +63,7 @@ export default function UploadPanel({
     formData.set("quantidade", "1");
     formData.set("tamanho_estimado", "A definir");
     formData.set("tipo_acabamento", "Brilhante");
-    formData.set("observacoes", `Cor do capacete: ${helmetColor === "white" ? "Branco" : "Preto"}`);
+    formData.set("observacoes", `Cor: ${helmetColor === "white" ? "Branco" : "Preto"} | Posicao: ${decalPosition}`);
     files.forEach((f) => formData.append("artworks", f));
     try {
       const res = await fetch("/api/pedidos", { method: "POST", body: formData });
@@ -67,11 +79,9 @@ export default function UploadPanel({
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      {/* ── Color Picker ── */}
+      {/* ── Color ── */}
       <div>
-        <label className="text-xs font-medium text-zinc-400 mb-2 block">
-          Cor do Capacete
-        </label>
+        <label className="text-xs font-medium text-zinc-400 mb-2 block">Cor do Capacete</label>
         <div className="flex gap-2">
           {([
             { key: "white" as const, label: "Branco", icon: Sun, bg: "bg-white", ring: "ring-white/30" },
@@ -96,9 +106,7 @@ export default function UploadPanel({
 
       {/* ── Upload ── */}
       <div>
-        <label className="text-xs font-medium text-zinc-400 mb-2 block">
-          Sua Figurinha
-        </label>
+        <label className="text-xs font-medium text-zinc-400 mb-2 block">Sua Figurinha</label>
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -113,13 +121,7 @@ export default function UploadPanel({
                 : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/40"
           )}
         >
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".png,.jpg,.jpeg,.svg,.webp"
-            className="hidden"
-            onChange={(e) => handleFiles(e.target.files)}
-          />
+          <input ref={fileRef} type="file" accept=".png,.jpg,.jpeg,.svg,.webp" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
           {files.length === 0 ? (
             <>
               <Upload className="w-5 h-5 text-zinc-500 mx-auto mb-1.5" />
@@ -132,12 +134,9 @@ export default function UploadPanel({
                 <div className="w-9 h-9 rounded-lg overflow-hidden border border-zinc-700 flex-shrink-0">
                   <img src={URL.createObjectURL(files[0])} alt="" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs text-emerald-400 truncate max-w-[140px]">{files[0].name}</p>
+                <p className="text-xs text-emerald-400 truncate max-w-[120px]">{files[0].name}</p>
               </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); removeFile(); }}
-                className="w-6 h-6 rounded-full bg-zinc-800 hover:bg-red-600/50 flex items-center justify-center"
-              >
+              <button onClick={(e) => { e.stopPropagation(); removeFile(); }} className="w-6 h-6 rounded-full bg-zinc-800 hover:bg-red-600/50 flex items-center justify-center">
                 <X className="w-3 h-3 text-zinc-400" />
               </button>
             </div>
@@ -145,15 +144,39 @@ export default function UploadPanel({
         </div>
       </div>
 
-      {/* ── Size Slider ── */}
+      {/* ── Position selector ── */}
       {textureUrl && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="space-y-1.5"
-        >
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-1.5">
+          <label className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+            <Crosshair className="w-3 h-3" />
+            Onde colocar?
+          </label>
+          <div className="flex gap-1">
+            {POSITIONS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => onDecalPositionChange(p.key)}
+                className={cn(
+                  "flex-1 py-2 rounded-lg text-[11px] font-semibold transition-all text-center",
+                  decalPosition === p.key
+                    ? "bg-pink-600/15 border border-pink-500/40 text-pink-300"
+                    : "bg-zinc-900 border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
+                )}
+                title={p.label}
+              >
+                <span className="block text-sm mb-0.5">{p.emoji}</span>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Size ── */}
+      {textureUrl && (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-1.5">
           <label className="text-xs font-medium text-zinc-400 flex items-center justify-between">
-            <span>Tamanho da Figurinha</span>
+            <span>Tamanho</span>
             <span className="text-zinc-600 text-[10px]">{Math.round(decalScale * 100)}%</span>
           </label>
           <div className="flex items-center gap-3">
@@ -164,7 +187,7 @@ export default function UploadPanel({
               max={200}
               value={Math.round(decalScale * 100)}
               onChange={(e) => onScaleChange(Number(e.target.value) / 100)}
-              className="flex-1 h-1.5 rounded-full appearance-none bg-zinc-800 accent-pink-500 cursor-pointer"
+              className="flex-1"
               style={{
                 WebkitAppearance: "none",
                 appearance: "none",
@@ -172,6 +195,7 @@ export default function UploadPanel({
                 height: 4,
                 borderRadius: 2,
                 outline: "none",
+                cursor: "pointer",
               }}
             />
             <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />

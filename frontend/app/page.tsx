@@ -123,6 +123,7 @@ export default function Home() {
   const [textureUrl, setTextureUrl] = useState<string | null>(null);
   const [helmetColor, setHelmetColor] = useState<HelmetColor>("black");
   const [decalScale, setDecalScale] = useState(1.0);
+  const [decalPosition, setDecalPosition] = useState<"front" | "top" | "left" | "right" | "back">("front");
   const [figurinhas, setFigurinhas] = useState<Figurinha[]>([]);
   const [activeCategoria, setActiveCategoria] = useState("all");
   const [categorias, setCategorias] = useState<{ nome: string; slug: string }[]>([]);
@@ -192,6 +193,8 @@ export default function Home() {
                     textureUrl={textureUrl}
                     helmetColor={helmetColor}
                     decalScale={decalScale}
+                    decalPosition={decalPosition}
+                    onDecalPositionChange={setDecalPosition}
                     className="w-full h-full"
                   />
                 </div>
@@ -225,9 +228,11 @@ export default function Home() {
                 textureUrl={textureUrl}
                 helmetColor={helmetColor}
                 decalScale={decalScale}
+                decalPosition={decalPosition}
                 onColorChange={setHelmetColor}
                 onTextureUpload={handleTextureUpload}
                 onScaleChange={setDecalScale}
+                onDecalPositionChange={setDecalPosition}
               />
 
               {/* Quick stats */}
