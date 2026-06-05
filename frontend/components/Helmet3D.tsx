@@ -1,74 +1,65 @@
 "use client";
 
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, useMemo, Suspense, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 
-// ── Pre-computed particle positions (stable across renders) ─
-const PARTICLE_COUNT = 20;
-const STICKER_COUNT = 6;
-
-function generateParticles() {
-  return Array.from({ length: PARTICLE_COUNT }, () => {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 0.8;
-    const r = 1.4 + Math.random() * 0.6;
-    return {
-      x: r * Math.sin(phi) * Math.cos(theta),
-      y: r * Math.cos(phi),
-      z: r * Math.sin(phi) * Math.sin(theta),
-      speed: 2 + Math.random() * 3,
-    };
-  });
-}
-
-function generateStickers() {
-  const colors = ["#ec4899", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#ef4444"];
-  return Array.from({ length: STICKER_COUNT }, (_, i) => {
-    const angle = (i / STICKER_COUNT) * Math.PI * 2;
-    const radius = 1.5;
-    return {
-      x: Math.cos(angle) * radius,
-      z: Math.sin(angle) * radius,
-      y: -0.2 + i * 0.15,
-      speed: 1.5 + i * 0.3,
-      color: colors[i],
-    };
-  });
-}
-
-// ── Helmet Model ───────────────────────────────────────────
+// ── Helmet Geometry Group ──────────────────────────────────
 function HelmetGeometry() {
   const groupRef = useRef<THREE.Group>(null);
-  const particles = useMemo(generateParticles, []);
-  const stickers = useMemo(generateStickers, []);
 
-  useFrame((state) => {
+  // Pre-compute data once
+  const data = useMemo(() => {
+    const stickers = Array.from({ length: 6 }, (_, i) => {
+      const angle = (i / 6) * Math.PI * 2;
+      return {
+        x: Math.cos(angle) * 1.5,
+        z: Math.sin(angle) * 1.5,
+        y: -0.2 + i * 0.15,
+        color: ["#ec4899", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#ef4444"][i],
+      };
+    });
+
+    const dots = Array.from({ length: 15 }, () => {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI * 0.8;
+      const r = 1.4 + Math.random() * 0.6;
+      return {
+        pos: new THREE.Vector3(
+          r * Math.sin(phi) * Math.cos(theta),
+          r * Math.cos(phi),
+          r * Math.sin(phi) * Math.sin(theta)
+        ),
+        speed: 1 + Math.random() * 2,
+      };
+    });
+
+    return { stickers, dots };
+  }, []);
+
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
-    const t = state.clock.getElapsedTime();
     groupRef.current.rotation.y +=
-      (state.pointer.x * 0.5 - groupRef.current.rotation.y) * 0.05;
+      (state.pointer.x * 0.5 - groupRef.current.rotation.y) * 0.04;
     groupRef.current.rotation.x +=
-      (-state.pointer.y * 0.3 - groupRef.current.rotation.x) * 0.05;
-    groupRef.current.position.y = Math.sin(t * 0.5) * 0.08;
+      (-state.pointer.y * 0.3 - groupRef.current.rotation.x) * 0.04;
+    groupRef.current.position.y =
+      Math.sin(state.clock.getElapsedTime() * 0.5) * 0.08;
   });
 
   return (
-    <group ref={groupRef} dispose={null}>
+    <group ref={groupRef}>
       {/* Main helmet shell */}
       <mesh>
         <sphereGeometry args={[1.15, 48, 36, 0, Math.PI * 2, 0, Math.PI * 0.65]} />
-        <meshPhysicalMaterial
+        <meshStandardMaterial
           color="#1a1a2e"
           metalness={0.85}
           roughness={0.12}
-          clearcoat={0.6}
-          clearcoatRoughness={0.1}
         />
       </mesh>
 
-      {/* Helmet stripe - pink */}
+      {/* Helmet stripe */}
       <mesh position={[0, 0.35, 1.08]} rotation={[0.15, 0, 0]}>
         <torusGeometry args={[0.95, 0.06, 16, 64, Math.PI]} />
         <meshStandardMaterial
@@ -83,41 +74,25 @@ function HelmetGeometry() {
       {/* Visor */}
       <mesh position={[0, 0.2, 0.95]} rotation={[0.1, 0, 0]}>
         <sphereGeometry args={[0.98, 40, 24, 0, Math.PI * 2, 0, 0.45]} />
-        <meshStandardMaterial
-          color="#111122"
-          metalness={0.15}
-          roughness={0.08}
-        />
+        <meshStandardMaterial color="#111122" metalness={0.15} roughness={0.08} />
       </mesh>
 
       {/* Visor rim */}
       <mesh position={[0, -0.05, 1.1]} rotation={[0.2, 0, 0]}>
         <torusGeometry args={[0.88, 0.025, 16, 64, Math.PI * 0.85]} />
-        <meshStandardMaterial
-          color="#222233"
-          metalness={0.7}
-          roughness={0.25}
-        />
+        <meshStandardMaterial color="#222233" metalness={0.7} roughness={0.25} />
       </mesh>
 
       {/* Bottom rim */}
       <mesh position={[0, -0.7, 0]}>
         <torusGeometry args={[0.98, 0.04, 16, 64]} />
-        <meshStandardMaterial
-          color="#2a2a3a"
-          metalness={0.8}
-          roughness={0.2}
-        />
+        <meshStandardMaterial color="#2a2a3a" metalness={0.8} roughness={0.2} />
       </mesh>
 
       {/* Chin guard */}
       <mesh position={[0, -0.55, 0.75]} rotation={[0.25, 0, 0]}>
         <sphereGeometry args={[0.75, 24, 16, 0, Math.PI * 2, 0.35, 0.35]} />
-        <meshStandardMaterial
-          color="#1e1e32"
-          metalness={0.8}
-          roughness={0.15}
-        />
+        <meshStandardMaterial color="#1e1e32" metalness={0.8} roughness={0.15} />
       </mesh>
 
       {/* Top vent */}
@@ -128,60 +103,85 @@ function HelmetGeometry() {
 
       {/* Side accents */}
       {[0.4, -0.4].map((side, i) => (
-        <group key={i} position={[side, 0.3, 1.02]} rotation={[0, side * 0.15, side * 0.15]}>
-          <mesh>
-            <boxGeometry args={[0.12, 0.08, 0.02]} />
-            <meshStandardMaterial
-              color={i === 0 ? "#ec4899" : "#8b5cf6"}
-              metalness={0.4}
-              roughness={0.2}
-              emissive={i === 0 ? "#ec4899" : "#8b5cf6"}
-              emissiveIntensity={0.4}
-            />
-          </mesh>
-        </group>
+        <mesh
+          key={i}
+          position={[side, 0.3, 1.02]}
+          rotation={[0, side * 0.15, side * 0.15]}
+        >
+          <boxGeometry args={[0.12, 0.08, 0.02]} />
+          <meshStandardMaterial
+            color={i === 0 ? "#ec4899" : "#8b5cf6"}
+            metalness={0.4}
+            roughness={0.2}
+            emissive={i === 0 ? "#ec4899" : "#8b5cf6"}
+            emissiveIntensity={0.4}
+          />
+        </mesh>
       ))}
 
-      {/* Floating stickers */}
-      {stickers.map((s, i) => (
-        <Float key={`sticker-${i}`} speed={s.speed} rotationIntensity={1} floatIntensity={0.6}>
-          <RoundedBox args={[0.18, 0.18, 0.02]} radius={0.03} position={[s.x, s.y, s.z]}>
-            <meshStandardMaterial
-              color={s.color}
-              metalness={0.2}
-              roughness={0.3}
-              emissive={s.color}
-              emissiveIntensity={0.5}
-            />
-          </RoundedBox>
-        </Float>
+      {/* Floating sticker cubes */}
+      {data.stickers.map((s, i) => (
+        <FloatingSticker key={`s-${i}`} data={s} index={i} />
       ))}
 
-      {/* Sparkle particles */}
-      {particles.map((p, i) => (
-        <Float key={`dot-${i}`} speed={p.speed} floatIntensity={0.3}>
-          <mesh position={[p.x, p.y, p.z]}>
-            <sphereGeometry args={[0.015, 4, 4]} />
-            <meshBasicMaterial color="#ec4899" />
-          </mesh>
-        </Float>
+      {/* Sparkle dots */}
+      {data.dots.map((d, i) => (
+        <FloatingDot key={`dot-${i}`} data={d} />
       ))}
     </group>
   );
 }
 
-// ── Fallback (shown if WebGL fails) ─────────────────────────
-function WebGLFallback() {
+// ── Simple floating sticker (no drei dependency) ────────────
+function FloatingSticker({
+  data,
+  index,
+}: {
+  data: { x: number; y: number; z: number; color: string };
+  index: number;
+}) {
+  const ref = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.getElapsedTime();
+    const speed = 1.5 + index * 0.3;
+    ref.current.position.y = data.y + Math.sin(t * speed) * 0.2;
+    ref.current.rotation.z += 0.01;
+    ref.current.rotation.x += 0.005;
+    ref.current.position.x = data.x + Math.cos(t * speed * 0.7) * 0.1;
+  });
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-[#020617] gap-4 p-8">
-      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 border-2 border-primary/30 flex items-center justify-center shadow-2xl shadow-primary/10">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-primary/30">
-          FS
-        </div>
-      </div>
-      <p className="text-white font-semibold text-lg">Figurinhas<span className="text-primary">.</span></p>
-      <p className="text-muted-foreground text-sm">Adesivos Premium para Capacete e Moto</p>
-    </div>
+    <mesh ref={ref} position={[data.x, data.y, data.z]}>
+      <boxGeometry args={[0.16, 0.16, 0.02]} />
+      <meshStandardMaterial
+        color={data.color}
+        metalness={0.2}
+        roughness={0.3}
+        emissive={data.color}
+        emissiveIntensity={0.5}
+      />
+    </mesh>
+  );
+}
+
+// ── Simple floating dot ────────────────────────────────────
+function FloatingDot({ data }: { data: { pos: THREE.Vector3; speed: number } }) {
+  const ref = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.getElapsedTime();
+    ref.current.position.y = data.pos.y + Math.sin(t * data.speed) * 0.15;
+    ref.current.position.x = data.pos.x + Math.cos(t * data.speed * 0.6) * 0.08;
+  });
+
+  return (
+    <mesh ref={ref} position={data.pos}>
+      <sphereGeometry args={[0.015, 4, 4]} />
+      <meshBasicMaterial color="#ec4899" />
+    </mesh>
   );
 }
 
@@ -192,28 +192,9 @@ function Scene() {
       <color attach="background" args={["#020617"]} />
       <fog attach="fog" args={["#020617", 3, 12]} />
       <ambientLight intensity={0.5} />
-      <spotLight
-        position={[5, 5, 5]}
-        angle={0.4}
-        penumbra={1}
-        intensity={2}
-        color="#ffffff"
-      />
-      <spotLight
-        position={[-5, 2, -3]}
-        angle={0.5}
-        penumbra={1}
-        intensity={2.5}
-        color="#ec4899"
-      />
-      <spotLight
-        position={[0, -2, 5]}
-        angle={0.6}
-        penumbra={1}
-        intensity={1.5}
-        color="#8b5cf6"
-      />
-      <pointLight position={[0, 3, 0]} intensity={1} color="#ffffff" />
+      <directionalLight position={[5, 5, 5]} intensity={1.5} color="#ffffff" />
+      <directionalLight position={[-3, 2, -3]} intensity={1.8} color="#ec4899" />
+      <directionalLight position={[0, -1, 5]} intensity={1.2} color="#8b5cf6" />
       <HelmetGeometry />
     </>
   );
@@ -223,22 +204,29 @@ function Scene() {
 function Loader() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-[#020617] gap-4">
-      <div className="relative w-20 h-20">
+      <div className="relative w-16 h-16">
         <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
         <div className="absolute inset-2 rounded-full border-t-2 border-primary animate-spin" />
-        <div className="absolute inset-4 rounded-full bg-primary/10 flex items-center justify-center">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-purple-500 shadow-lg shadow-primary/30" />
-        </div>
       </div>
-      <p className="text-sm text-muted-foreground animate-pulse">
-        Carregando capacete 3D...
-      </p>
+      <p className="text-sm text-muted-foreground">Carregando...</p>
     </div>
   );
 }
 
 // ── Exported Component ─────────────────────────────────────
 export default function Helmet3D({ className }: { className?: string }) {
+  // Only render on client
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-[#020617]">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full h-full ${className || ""}`}>
       <Suspense fallback={<Loader />}>
@@ -250,10 +238,11 @@ export default function Helmet3D({ className }: { className?: string }) {
             alpha: true,
             powerPreference: "high-performance",
             failIfMajorPerformanceCaveat: false,
+            preserveDrawingBuffer: false,
           }}
           style={{ background: "transparent" }}
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 0);
+          onCreated={() => {
+            // Canvas ready
           }}
         >
           <Scene />
