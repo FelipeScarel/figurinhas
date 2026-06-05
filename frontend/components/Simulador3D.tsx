@@ -157,7 +157,7 @@ function applyPBR(obj: THREE.Group, color: "white" | "black", envMap: THREE.Text
 }
 
 // ═══════════════════════════════════════════════════════════
-// VINYL DECAL MATERIAL (die-cut premium)
+// VINYL DECAL MATERIAL (die-cut premium, z-fighting proof)
 // ═══════════════════════════════════════════════════════════
 function createVinylMat(finish: Finish, envMap: THREE.Texture): THREE.MeshStandardMaterial {
   const roughness = finish === "Fosco" ? 0.3 : finish === "Brilhante" ? 0.12 : 0.10;
@@ -166,12 +166,13 @@ function createVinylMat(finish: Finish, envMap: THREE.Texture): THREE.MeshStanda
   const emissiveIntensity = finish === "Holográfico" ? 0.12 : 0;
 
   const mat = new THREE.MeshStandardMaterial({
-    color: "#ffffff",
+    color: "#ffffff",           // white base = texture shows true colors
     map: null,
     transparent: true,
-    alphaTest: 0.01,
-    depthTest: true,
-    depthWrite: false,
+    alphaTest: 0.4,             // aggressive: only alpha > 102 is visible → clean cut
+    alphaToCoverage: true,      // MSAA-compatible alpha
+    depthTest: true,            // don't render through helmet
+    depthWrite: false,          // don't block helmet from rendering
     polygonOffset: true,
     polygonOffsetFactor: -5,
     polygonOffsetUnits: -4,
@@ -181,7 +182,7 @@ function createVinylMat(finish: Finish, envMap: THREE.Texture): THREE.MeshStanda
     emissiveIntensity,
     envMap: metalness > 0.3 ? envMap : null,
     envMapIntensity: metalness > 0.3 ? 0.8 : 0,
-    side: THREE.DoubleSide,
+    side: THREE.FrontSide,      // front only = slightly more depth illusion
   });
 
   return mat;
@@ -226,7 +227,7 @@ export default function Simulador3D({
 
   useEffect(() => setMounted(true), []);
 
-  // ── Load texture with max sharpness ────────────────────
+  // ── Load texture with max sharpness + generate alphaMap ─
   const loadTex = useCallback((url: string): Promise<THREE.Texture> => {
     return new Promise((resolve) => {
       texLoaderRef.current.load(url, (tex) => {
@@ -236,6 +237,34 @@ export default function Simulador3D({
         tex.generateMipmaps = true;
         tex.premultiplyAlpha = true;
         tex.needsUpdate = true;
+
+        // Generate alphaMap from the texture's own alpha channel
+        // This ensures clean transparency even on GPUs with limited alpha support
+        const img = tex.image as HTMLImageElement | HTMLCanvasElement;
+        if (img) {
+          const c = document.createElement("canvas");
+          c.width = img.width;
+          c.height = img.height;
+          const ctx = c.getContext("2d")!;
+          ctx.drawImage(img, 0, 0);
+          const idata = ctx.getImageData(0, 0, c.width, c.height);
+          // Extract alpha channel
+          for (let i = 0; i < idata.data.length; i += 4) {
+            const a = idata.data[i + 3];
+            idata.data[i] = a;
+            idata.data[i + 1] = a;
+            idata.data[i + 2] = a;
+            idata.data[i + 3] = 255;
+          }
+          ctx.putImageData(idata, 0, 0);
+          const alphaTex = new THREE.CanvasTexture(c);
+          alphaTex.minFilter = THREE.LinearMipmapLinearFilter;
+          alphaTex.magFilter = THREE.LinearFilter;
+          alphaTex.generateMipmaps = true;
+          // Attach to texture for later use
+          (tex as any).__alphaMap = alphaTex;
+        }
+
         resolve(tex);
       });
     });
@@ -286,6 +315,11 @@ export default function Simulador3D({
 
     const tex = await loadTex(textureUrl);
     mat.map = tex;
+    // Apply alpha map for clean transparency
+    const alphaMap = (tex as any).__alphaMap as THREE.Texture | undefined;
+    if (alphaMap) {
+      mat.alphaMap = alphaMap;
+    }
     mat.needsUpdate = true;
 
     sceneRef.current.add(decal);
