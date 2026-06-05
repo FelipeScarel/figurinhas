@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatPrice } from "@/lib/utils";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const Helmet3D = dynamic(() => import("@/components/Helmet3D"), { ssr: false });
 import {
@@ -104,12 +105,14 @@ function HeroScene() {
       onMouseMove={handleMouseMove}
       className="relative w-full h-screen max-h-[900px] min-h-[600px] overflow-hidden"
     >
-      {/* 3D Helmet */}
+      {/* 3D Helmet with Error Boundary */}
       <motion.div
         style={{ rotateX, rotateY }}
         className="absolute inset-0 z-10"
       >
-        <Helmet3D className="w-full h-full" />
+        <ErrorBoundary>
+          <Helmet3D className="w-full h-full" />
+        </ErrorBoundary>
       </motion.div>
 
       {/* Gradient overlays */}
