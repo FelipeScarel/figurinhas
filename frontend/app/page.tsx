@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { cn, formatPrice } from "@/lib/utils";
 import { Spotlight, SpotlightBorder } from "@/components/Spotlight";
 import QuoteForm from "@/components/QuoteForm";
+import UploadPanel from "@/components/UploadPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -171,81 +172,21 @@ export default function Home() {
       {/* ── HERO + SIMULATOR ─────────────────────────────── */}
       <section
         id="simulator"
-        className="relative min-h-screen flex items-center pt-20 pb-12"
+        className="relative min-h-screen flex items-center pt-24 pb-12"
       >
-        {/* Background ambiance */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(236,72,153,0.12),transparent)]" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            {/* LEFT — Text + CTA */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-10 items-start">
+            {/* LEFT — 3D Viewer (3/5 width) */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center lg:text-left"
-            >
-              <Badge
-                variant="secondary"
-                className="mb-6 px-4 py-1.5 text-sm gap-2 border-pink-500/30 bg-pink-500/5 text-pink-300"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Simulador 3D Interativo
-              </Badge>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] mb-4">
-                Visualize suas{" "}
-                <span className="text-gradient-pink">figurinhas</span>
-                <br />
-                antes de comprar
-              </h1>
-
-              <p className="text-zinc-400 text-base sm:text-lg max-w-lg mx-auto lg:mx-0 leading-relaxed mb-8">
-                Faça upload da sua arte ou escolha um modelo da vitrine.
-                Veja em <span className="text-white">tempo real</span> como fica
-                no capacete ou na capinha antes de pedir.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold rounded-full px-8 shadow-xl shadow-pink-600/20 group"
-                  onClick={() => document.getElementById("quote")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                  Envie sua Arte
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="rounded-full border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
-                  onClick={() => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  <ShoppingBag className="w-4 h-4 mr-2" />
-                  Ver Galeria
-                </Button>
-              </div>
-
-              {/* Quick stats */}
-              <div className="flex items-center justify-center lg:justify-start gap-6 mt-8 text-xs text-zinc-500">
-                {["+500 clientes", "Produção em 48h", "Frete Grátis Brasil"].map((s) => (
-                  <span key={s} className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500/50" />
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* RIGHT — 3D Simulator */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="lg:col-span-3 order-2 lg:order-1"
             >
               <SpotlightBorder className="w-full">
-                <div className="rounded-2xl overflow-hidden bg-black min-h-[500px] lg:min-h-[600px]">
+                <div className="rounded-2xl overflow-hidden bg-[#050508] min-h-[450px] lg:min-h-[580px]">
                   <Simulador3D
                     textureUrl={textureUrl}
                     modelType={modelType}
@@ -255,10 +196,53 @@ export default function Home() {
                 </div>
               </SpotlightBorder>
             </motion.div>
+
+            {/* RIGHT — Upload Panel (2/5 width) */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
+              className="lg:col-span-2 order-1 lg:order-2"
+            >
+              {/* Title */}
+              <div className="mb-5">
+                <Badge className="mb-3 px-3 py-1 text-xs gap-1.5 border-pink-500/30 bg-pink-500/5 text-pink-300">
+                  <Sparkles className="w-3 h-3" />
+                  Simulador 3D
+                </Badge>
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight mb-2">
+                  Visualize suas{" "}
+                  <span className="text-gradient-pink">figurinhas</span>
+                </h1>
+                <p className="text-zinc-500 text-sm leading-relaxed">
+                  Faça upload da sua arte e veja em <span className="text-zinc-300">tempo real</span> no capacete ou na capinha.
+                </p>
+              </div>
+
+              {/* Upload + Config Panel */}
+              <UploadPanel
+                textureUrl={textureUrl}
+                modelType={modelType}
+                onModelChange={setModelType}
+                onTextureUpload={handleTextureUpload}
+              />
+
+              {/* Quick stats */}
+              <div className="flex items-center gap-5 mt-5 text-[10px] text-zinc-600">
+                {["+500 clientes", "Produção 48h", "Frete Grátis"].map((s) => (
+                  <span key={s} className="flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-pink-500/40" />
+                    {s}
+                  </span>
+                ))}
+                <a href="#gallery" className="text-pink-500 hover:text-pink-400 ml-auto flex items-center gap-1">
+                  Galeria <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
