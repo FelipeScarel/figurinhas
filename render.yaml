@@ -3,8 +3,10 @@ services:
     name: figurinhas-adesivas
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app -b 0.0.0.0:$PORT
+    buildCommand: |
+      pip install -r requirements.txt &&
+      cd frontend && npm ci --legacy-peer-deps && npm run build && cd ..
+    startCommand: gunicorn wsgi:app -b 0.0.0.0:$PORT --timeout 120
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -16,6 +18,8 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: NODE_VERSION
+        value: 20.20.1
 
 databases:
   - name: figurinhas-db

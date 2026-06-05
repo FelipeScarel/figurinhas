@@ -1,29 +1,27 @@
-import os
-from flask import Blueprint, render_template, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app
 from models.figurinha import get_all_categorias, get_all_figurinhas
 from models.order import create_order
 from models.pedido_arquivo import add_arquivo
 from utils.file_handler import save_upload
 from utils.whatsapp import generate_whatsapp_message
 
-orders = Blueprint("orders", __name__)
+orders_api = Blueprint("orders_api", __name__)
 
 
-@orders.route("/")
-def index():
-    categorias = get_all_categorias()
-    figurinhas = get_all_figurinhas()
-    return render_template("index.html", categorias=categorias, figurinhas=figurinhas)
-
-
-@orders.route("/api/figurinhas")
+@orders_api.route("/api/figurinhas")
 def api_figurinhas():
     categoria = request.args.get("categoria")
     figurinhas = get_all_figurinhas(categoria_slug=categoria if categoria else None)
     return jsonify([dict(f) for f in figurinhas])
 
 
-@orders.route("/api/pedidos", methods=["POST"])
+@orders_api.route("/api/categorias")
+def api_categorias():
+    categorias = get_all_categorias()
+    return jsonify([dict(c) for c in categorias])
+
+
+@orders_api.route("/api/pedidos", methods=["POST"])
 def api_create_order():
     try:
         cliente_nome = request.form.get("cliente_nome", "").strip()
