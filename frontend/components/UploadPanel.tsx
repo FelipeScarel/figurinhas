@@ -4,7 +4,8 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, X, Sun, Moon, Minimize2, Maximize2, Crosshair, MousePointer2 } from "lucide-react";
+import { Upload, Send, X, Sun, Moon, Minimize2, Maximize2, Crosshair, Scissors } from "lucide-react";
+import { removeBackground, hasTransparency } from "@/lib/removeBackground";
 
 type FinishType = "Brilhante" | "Fosco" | "Refletivo" | "Holográfico";
 
@@ -53,13 +54,32 @@ export default function UploadPanel({
   const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleFiles(newFiles: FileList | null) {
+  async function handleFiles(newFiles: FileList | null) {
     if (!newFiles) return;
     const arr = Array.from(newFiles).slice(0, 1);
     setFiles(arr);
-    if (arr.length > 0) onTextureUpload(URL.createObjectURL(arr[0]));
+    if (arr.length === 0) return;
+
+    setProcessing(true);
+    try {
+      // Auto-remove background for die-cut vinyl effect
+      const needsRemoval = !(await hasTransparency(arr[0]));
+      if (needsRemoval) {
+        const processed = await removeBackground(arr[0], 45, 1);
+        onTextureUpload(processed);
+      } else {
+        // Already has transparency — use as-is
+        onTextureUpload(URL.createObjectURL(arr[0]));
+      }
+    } catch {
+      // Fallback to original if processing fails
+      onTextureUpload(URL.createObjectURL(arr[0]));
+    } finally {
+      setProcessing(false);
+    }
   }
 
   function removeFile() {
@@ -135,11 +155,20 @@ export default function UploadPanel({
           )}
         >
           <input ref={fileRef} type="file" accept=".png,.jpg,.jpeg,.svg,.webp" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
-          {files.length === 0 ? (
+          {processing ? (
+            <>
+              <div className="w-8 h-8 rounded-full border-2 border-pink-500/30 border-t-pink-500 animate-spin mx-auto mb-2" />
+              <p className="text-xs text-pink-400">Removendo fundo...</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">Efeito vinil die-cut</p>
+            </>
+          ) : files.length === 0 ? (
             <>
               <Upload className="w-5 h-5 text-zinc-500 mx-auto mb-1.5" />
               <p className="text-xs text-zinc-400">Clique ou arraste sua imagem</p>
-              <p className="text-[10px] text-zinc-600 mt-0.5">PNG, JPG, SVG</p>
+              <p className="text-[10px] text-zinc-600 mt-0.5">
+                <Scissors className="w-3 h-3 inline mr-0.5" />
+                Fundo removido automaticamente
+              </p>
             </>
           ) : (
             <div className="flex items-center justify-between">
