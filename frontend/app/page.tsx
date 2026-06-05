@@ -46,7 +46,7 @@ interface Figurinha {
   preco: number | null;
 }
 
-type ModelType = "capacete" | "capinha";
+type HelmetColor = "white" | "black";
 
 // ── Features ───────────────────────────────────────────────
 const FEATURES = [
@@ -121,7 +121,8 @@ function Navbar() {
 // ── Main Page ──────────────────────────────────────────────
 export default function Home() {
   const [textureUrl, setTextureUrl] = useState<string | null>(null);
-  const [modelType, setModelType] = useState<ModelType>("capacete");
+  const [helmetColor, setHelmetColor] = useState<HelmetColor>("black");
+  const [decalScale, setDecalScale] = useState(1.0);
   const [figurinhas, setFigurinhas] = useState<Figurinha[]>([]);
   const [activeCategoria, setActiveCategoria] = useState("all");
   const [categorias, setCategorias] = useState<{ nome: string; slug: string }[]>([]);
@@ -189,8 +190,8 @@ export default function Home() {
                 <div className="rounded-2xl overflow-hidden bg-[#050508] min-h-[450px] lg:min-h-[580px]">
                   <Simulador3D
                     textureUrl={textureUrl}
-                    modelType={modelType}
-                    onModelChange={setModelType}
+                    helmetColor={helmetColor}
+                    decalScale={decalScale}
                     className="w-full h-full"
                   />
                 </div>
@@ -222,9 +223,11 @@ export default function Home() {
               {/* Upload + Config Panel */}
               <UploadPanel
                 textureUrl={textureUrl}
-                modelType={modelType}
-                onModelChange={setModelType}
+                helmetColor={helmetColor}
+                decalScale={decalScale}
+                onColorChange={setHelmetColor}
                 onTextureUpload={handleTextureUpload}
+                onScaleChange={setDecalScale}
               />
 
               {/* Quick stats */}

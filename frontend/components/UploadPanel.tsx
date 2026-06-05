@@ -4,44 +4,35 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Spotlight } from "@/components/Spotlight";
-import { Upload, Image, Smartphone, Shield, Send, X, ArrowRight } from "lucide-react";
-
-const FINISHES = [
-  { value: "Brilhante", desc: "Alto brilho", icon: "✨" },
-  { value: "Fosco", desc: "Sem reflexo", icon: "🌫️" },
-  { value: "Refletivo", desc: "Retroreflexivo", icon: "💎" },
-  { value: "Holográfico", desc: "Arco-íris", icon: "🌈" },
-];
-
-type ModelType = "capacete" | "capinha";
+import { Upload, Send, X, Sun, Moon, Maximize2, Minimize2 } from "lucide-react";
 
 interface UploadPanelProps {
   textureUrl: string | null;
-  modelType: ModelType;
-  onModelChange: (m: ModelType) => void;
+  helmetColor: "white" | "black";
+  decalScale: number;
+  onColorChange: (c: "white" | "black") => void;
   onTextureUpload: (url: string) => void;
+  onScaleChange: (s: number) => void;
   className?: string;
 }
 
 export default function UploadPanel({
   textureUrl,
-  modelType,
-  onModelChange,
+  helmetColor,
+  decalScale,
+  onColorChange,
   onTextureUpload,
+  onScaleChange,
   className,
 }: UploadPanelProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const [size, setSize] = useState("8x8 cm");
-  const [finish, setFinish] = useState("Brilhante");
-  const [whatsapp, setWhatsapp] = useState("");
   const [sending, setSending] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function handleFiles(newFiles: FileList | null) {
     if (!newFiles) return;
-    const arr = Array.from(newFiles).slice(0, 3);
+    const arr = Array.from(newFiles).slice(0, 1);
     setFiles(arr);
     if (arr.length > 0) onTextureUpload(URL.createObjectURL(arr[0]));
   }
@@ -51,27 +42,17 @@ export default function UploadPanel({
     onTextureUpload("");
   }
 
-  function handleWhatsApp(v: string) {
-    let val = v.replace(/\D/g, "").slice(0, 11);
-    if (val.length > 0) val = val.replace(/^(\d{2})(\d)/, "($1) $2");
-    if (val.length > 5) val = val.replace(/(\d{5})(\d)/, "$1-$2");
-    setWhatsapp(val);
-  }
-
   async function handleSend() {
-    if (!whatsapp) return;
+    if (!textureUrl) return;
     setSending(true);
-
     const formData = new FormData();
-    formData.set("cliente_nome", "Cliente Simulador");
-    formData.set("cliente_whatsapp", whatsapp);
+    formData.set("cliente_nome", "Cliente");
+    formData.set("cliente_whatsapp", "11999999999");
     formData.set("quantidade", "1");
-    formData.set("tamanho_estimado", size);
-    formData.set("tipo_acabamento", finish);
-    formData.set("urgencia", "");
-    formData.set("observacoes", `Modelo: ${modelType === "capacete" ? "Capacete" : "Capinha"} | Tamanho: ${size} | Acabamento: ${finish}`);
+    formData.set("tamanho_estimado", "A definir");
+    formData.set("tipo_acabamento", "Brilhante");
+    formData.set("observacoes", `Cor do capacete: ${helmetColor === "white" ? "Branco" : "Preto"}`);
     files.forEach((f) => formData.append("artworks", f));
-
     try {
       const res = await fetch("/api/pedidos", { method: "POST", body: formData });
       const data = await res.json();
@@ -85,40 +66,48 @@ export default function UploadPanel({
   }
 
   return (
-    <div className={cn("flex flex-col gap-5", className)}>
-      {/* ── Model Toggle ── */}
-      <div className="flex gap-1 bg-zinc-900/90 backdrop-blur-xl border border-zinc-800/50 rounded-full p-1 self-start">
-        {([
-          { key: "capacete" as ModelType, label: "Capacete", icon: Shield },
-          { key: "capinha" as ModelType, label: "Capinha", icon: Smartphone },
-        ]).map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => onModelChange(key)}
-            className={cn(
-              "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all",
-              modelType === key
-                ? "bg-pink-600 text-white shadow-lg shadow-pink-600/20"
-                : "text-zinc-400 hover:text-white"
-            )}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            {label}
-          </button>
-        ))}
+    <div className={cn("flex flex-col gap-4", className)}>
+      {/* ── Color Picker ── */}
+      <div>
+        <label className="text-xs font-medium text-zinc-400 mb-2 block">
+          Cor do Capacete
+        </label>
+        <div className="flex gap-2">
+          {([
+            { key: "white" as const, label: "Branco", icon: Sun, bg: "bg-white", ring: "ring-white/30" },
+            { key: "black" as const, label: "Preto", icon: Moon, bg: "bg-zinc-800", ring: "ring-zinc-600/30" },
+          ]).map(({ key, label, icon: Icon, bg, ring }) => (
+            <button
+              key={key}
+              onClick={() => onColorChange(key)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border transition-all",
+                helmetColor === key
+                  ? `${bg} text-zinc-900 border-zinc-600 ring-1 ${ring}`
+                  : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700"
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── Upload Zone ── */}
-      <Spotlight className="rounded-xl" color="rgba(236,72,153,0.06)">
+      {/* ── Upload ── */}
+      <div>
+        <label className="text-xs font-medium text-zinc-400 mb-2 block">
+          Sua Figurinha
+        </label>
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
           onClick={() => !files.length && fileRef.current?.click()}
           className={cn(
-            "border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all",
+            "border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all",
             dragOver
-              ? "border-pink-500/60 bg-pink-500/5"
+              ? "border-pink-500/50 bg-pink-500/5"
               : files.length
                 ? "border-emerald-500/30 bg-emerald-500/5"
                 : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/40"
@@ -131,135 +120,83 @@ export default function UploadPanel({
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
           />
-
           {files.length === 0 ? (
             <>
-              <div className="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mx-auto mb-3">
-                <Upload className="w-5 h-5 text-pink-400" />
-              </div>
-              <p className="text-sm text-zinc-300 font-medium mb-1">
-                Arraste sua arte aqui
-              </p>
-              <p className="text-xs text-zinc-500">
-                ou clique para buscar no computador
-              </p>
-              <p className="text-[10px] text-zinc-600 mt-2">
-                PNG, JPG, SVG — máx 16MB
-              </p>
+              <Upload className="w-5 h-5 text-zinc-500 mx-auto mb-1.5" />
+              <p className="text-xs text-zinc-400">Clique ou arraste sua imagem</p>
+              <p className="text-[10px] text-zinc-600 mt-0.5">PNG, JPG, SVG</p>
             </>
           ) : (
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg overflow-hidden border border-zinc-700 flex-shrink-0">
-                  <img
-                    src={URL.createObjectURL(files[0])}
-                    alt="preview"
-                    className="w-full h-full object-cover"
-                  />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg overflow-hidden border border-zinc-700 flex-shrink-0">
+                  <img src={URL.createObjectURL(files[0])} alt="" className="w-full h-full object-cover" />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm text-emerald-400 font-medium truncate max-w-[160px]">
-                    {files[0].name}
-                  </p>
-                  <p className="text-[10px] text-zinc-500">Arte carregada</p>
-                </div>
+                <p className="text-xs text-emerald-400 truncate max-w-[140px]">{files[0].name}</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); removeFile(); }}
-                className="w-7 h-7 rounded-full bg-zinc-800 hover:bg-red-600/50 flex items-center justify-center transition-colors"
+                className="w-6 h-6 rounded-full bg-zinc-800 hover:bg-red-600/50 flex items-center justify-center"
               >
-                <X className="w-3 h-3 text-zinc-400 hover:text-white" />
+                <X className="w-3 h-3 text-zinc-400" />
               </button>
             </div>
           )}
         </div>
-      </Spotlight>
-
-      {/* ── Size Selector ── */}
-      <div>
-        <label className="text-xs font-medium text-zinc-400 mb-2 block">Tamanho do Adesivo</label>
-        <div className="grid grid-cols-4 gap-1.5">
-          {["5x5", "8x8", "10x10", "Outro"].map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSize(s === "Outro" ? "Personalizado" : `${s} cm`)}
-              className={cn(
-                "py-2 rounded-lg text-[11px] font-semibold transition-all border",
-                size === `${s} cm` || (s === "Outro" && size === "Personalizado")
-                  ? "bg-pink-600/15 border-pink-500/40 text-pink-300"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-              )}
-            >
-              {s === "Outro" ? "Outro" : `${s} cm`}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* ── Finish ── */}
-      <div>
-        <label className="text-xs font-medium text-zinc-400 mb-2 block">Acabamento</label>
-        <div className="grid grid-cols-2 gap-1.5">
-          {FINISHES.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFinish(f.value)}
-              className={cn(
-                "py-2.5 px-3 rounded-lg text-left transition-all border",
-                finish === f.value
-                  ? "bg-pink-600/10 border-pink-500/30 text-pink-200"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-              )}
-            >
-              <span className="text-xs font-semibold">{f.icon} {f.value}</span>
-              <span className="text-[10px] text-zinc-500 block">{f.desc}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── WhatsApp + Send ── */}
-      <div className="space-y-2">
-        <input
-          type="tel"
-          value={whatsapp}
-          onChange={(e) => handleWhatsApp(e.target.value)}
-          maxLength={15}
-          placeholder="Seu WhatsApp: (11) 99999-9999"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-pink-500/50 transition-colors"
-        />
-        <Button
-          onClick={handleSend}
-          disabled={sending || !whatsapp}
-          className="w-full h-11 bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold rounded-xl shadow-lg shadow-pink-600/20 transition-all disabled:opacity-40"
-        >
-          {sending ? (
-            <span className="flex items-center gap-2">
-              <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-              Enviando...
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <Send className="w-4 h-4" />
-              Pedir Orçamento via WhatsApp
-            </span>
-          )}
-        </Button>
-      </div>
-
-      {/* ── Status ── */}
+      {/* ── Size Slider ── */}
       {textureUrl && (
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-xs text-emerald-400"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="space-y-1.5"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Visualização 3D atualizada
+          <label className="text-xs font-medium text-zinc-400 flex items-center justify-between">
+            <span>Tamanho da Figurinha</span>
+            <span className="text-zinc-600 text-[10px]">{Math.round(decalScale * 100)}%</span>
+          </label>
+          <div className="flex items-center gap-3">
+            <Minimize2 className="w-3.5 h-3.5 text-zinc-500" />
+            <input
+              type="range"
+              min={30}
+              max={200}
+              value={Math.round(decalScale * 100)}
+              onChange={(e) => onScaleChange(Number(e.target.value) / 100)}
+              className="flex-1 h-1.5 rounded-full appearance-none bg-zinc-800 accent-pink-500 cursor-pointer"
+              style={{
+                WebkitAppearance: "none",
+                appearance: "none",
+                background: `linear-gradient(to right, #ec4899 0%, #ec4899 ${(decalScale - 0.3) / 1.7 * 100}%, #27272a ${(decalScale - 0.3) / 1.7 * 100}%, #27272a 100%)`,
+                height: 4,
+                borderRadius: 2,
+                outline: "none",
+              }}
+            />
+            <Maximize2 className="w-3.5 h-3.5 text-zinc-500" />
+          </div>
         </motion.div>
       )}
+
+      {/* ── Send ── */}
+      <Button
+        onClick={handleSend}
+        disabled={sending || !textureUrl}
+        className="w-full h-10 bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-semibold rounded-xl shadow-lg shadow-pink-600/15 text-sm disabled:opacity-40"
+      >
+        {sending ? (
+          <span className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            Enviando...
+          </span>
+        ) : (
+          <span className="flex items-center gap-2">
+            <Send className="w-4 h-4" />
+            Pedir Orçamento no WhatsApp
+          </span>
+        )}
+      </Button>
     </div>
   );
 }
