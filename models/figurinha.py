@@ -56,8 +56,8 @@ def get_all_figurinhas_admin(categoria_slug=None):
 
 def create_figurinha(data):
     return query_db(
-        """INSERT INTO figurinhas (titulo, descricao, url_imagem, categoria_id, preco, tags)
-           VALUES (?, ?, ?, ?, ?, ?)""",
+        """INSERT INTO figurinhas (titulo, descricao, url_imagem, categoria_id, preco, tags, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, 1)""",
         (
             data["titulo"],
             data.get("descricao", ""),
