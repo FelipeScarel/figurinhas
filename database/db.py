@@ -63,14 +63,18 @@ def query_db(query, args=(), one=False, commit=False):
 
     if pg:
         query = _placeholder(query)
-        if commit and query.strip().upper().startswith("INSERT"):
+        is_insert = commit and query.strip().upper().startswith("INSERT")
+        if is_insert:
             query = query.rstrip(";") + " RETURNING id"
         cur = db.cursor()
         cur.execute(query, args)
         if commit:
             db.commit()
-            row = cur.fetchone()
-            return row["id"] if row else None
+            if is_insert:
+                row = cur.fetchone()
+                return row["id"] if row else None
+            cur.close()
+            return None
         rv = cur.fetchall()
         cur.close()
         return (rv[0] if rv else None) if one else rv
