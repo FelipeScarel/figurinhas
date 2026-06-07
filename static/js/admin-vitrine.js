@@ -1,71 +1,46 @@
 document.addEventListener("DOMContentLoaded", () => {
   const grid = document.getElementById("vitrine-grid");
   const empty = document.getElementById("vitrine-empty");
-  const filterBtns = document.querySelectorAll(".vitrine-filter-btn");
   const modal = document.getElementById("vitrine-modal");
   const form = document.getElementById("vitrine-form");
   const dropZone = document.getElementById("vitrine-drop-zone");
   const imgInput = document.getElementById("vitrine-imagem-input");
   const previewImg = document.getElementById("vitrine-preview-img");
 
-  let currentFilter = "all";
+  // Show file input on click
+  dropZone?.addEventListener("click", () => imgInput?.click());
 
-  // Filter buttons
-  filterBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      filterBtns.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentFilter = btn.dataset.vitrineFilter;
-      loadVitrine();
-    });
+  // Image preview
+  imgInput?.addEventListener("change", () => {
+    const file = imgInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewImg.classList.remove("hidden");
+        document.getElementById("vitrine-drop-content").classList.add("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
   });
 
-  // Image preview for vitrine form
-  if (imgInput && previewImg) {
-    imgInput.addEventListener("change", () => {
-      const file = imgInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          previewImg.src = e.target.result;
-          previewImg.classList.remove("hidden");
-          document.getElementById("vitrine-drop-content").classList.add("hidden");
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+  // Drag & drop
+  ["dragenter", "dragover", "dragleave", "drop"].forEach((ev) => {
+    dropZone?.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+  });
+  dropZone?.addEventListener("drop", (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      imgInput.files = files;
+      imgInput.dispatchEvent(new Event("change"));
+    }
+  });
 
-    // Drag & drop for vitrine form
-    ["dragenter", "dragover", "dragleave", "drop"].forEach((ev) => {
-      dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
-    });
-    dropZone.addEventListener("drop", (e) => {
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        imgInput.files = files;
-        imgInput.dispatchEvent(new Event("change"));
-      }
-    });
-  }
-
-  // Vitrine form submit
+  // Form submit
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const editId = document.getElementById("vitrine-edit-id").value;
     const formData = new FormData(form);
-
-    // Serialize tags from string to JSON array
-    const tagsInput = document.getElementById("vitrine-tags");
-    if (tagsInput) {
-      const raw = tagsInput.value.trim();
-      if (raw) {
-        const tagsArray = raw.split(",").map(t => t.trim()).filter(Boolean);
-        formData.set("tags", JSON.stringify(tagsArray));
-      } else {
-        formData.set("tags", "[]");
-      }
-    }
-
     const isEdit = !!editId;
     const url = isEdit ? `/admin/api/vitrine/${editId}` : "/admin/api/vitrine";
     const method = isEdit ? "PUT" : "POST";
@@ -76,10 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(url, { method, body: formData });
       const data = await res.json();
-
       if (data.success) {
-        showToast(isEdit ? "Figurinha atualizada!" : "Figurinha criada!", "success");
-        closeVitrineForm();
+        showToast(isEdit ? "Atualizado!" : "Criado!", "success");
+        closeForm();
         loadVitrine();
       } else {
         showToast(data.error || "Erro ao salvar.", "error");
@@ -92,12 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Close modal on backdrop click
-  modal?.addEventListener("click", (e) => {
-    if (e.target === e.currentTarget) closeVitrineForm();
-  });
-
-  // Initial load
+  modal?.addEventListener("click", (e) => { if (e.target === e.currentTarget) closeForm(); });
   loadVitrine();
 });
 
@@ -105,111 +74,58 @@ async function loadVitrine() {
   const grid = document.getElementById("vitrine-grid");
   const empty = document.getElementById("vitrine-empty");
 
-  let url = "/admin/api/vitrine";
-  if (currentFilter && currentFilter !== "all") {
-    url += "?categoria=" + encodeURIComponent(currentFilter);
-  }
-
   try {
-    const res = await fetch(url);
+    const res = await fetch("/admin/api/vitrine");
     const figurinhas = await res.json();
 
     if (figurinhas.length === 0) {
       grid.innerHTML = "";
-      if (empty) empty.classList.remove("hidden");
+      empty.classList.remove("hidden");
       return;
     }
+    empty.classList.add("hidden");
 
-    if (empty) empty.classList.add("hidden");
+    grid.innerHTML = figurinhas.map((fig) => {
+      const precoStr = fig.preco
+        ? `<span class="text-amber-700 font-bold text-sm">R$ ${parseFloat(fig.preco).toFixed(2).replace(".", ",")}</span>`
+        : `<span class="text-gray-400 text-xs">Sob Consulta</span>`;
 
-    grid.innerHTML = figurinhas
-      .map((fig) => {
-        const precoStr = fig.preco
-          ? `<span class="px-2 py-0.5 rounded-lg bg-emerald-600/10 text-emerald-400 text-xs font-bold border border-emerald-600/20">R$ ${parseFloat(fig.preco).toFixed(2)}</span>`
-          : `<span class="px-2 py-0.5 rounded-lg bg-gold-500/5 text-gold-400 text-xs border border-gold-500/15">Valor sob Consulta</span>`;
+      const activeBadge = fig.is_active
+        ? '<span class="px-2 py-0.5 rounded text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span>'
+        : '<span class="px-2 py-0.5 rounded text-xs bg-red-50 text-red-600 border border-red-200">Inativo</span>';
 
-        const activeBadge = fig.is_active
-          ? '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-600/10 text-emerald-400 border border-emerald-600/20">Ativo</span>'
-          : '<span class="px-2 py-0.5 rounded text-[10px] bg-red-600/10 text-red-400 border border-red-600/20">Inativo</span>';
-
-        const catBadge = fig.categoria_nome
-          ? `<span class="px-2 py-0.5 rounded text-[10px] bg-graphite-700 text-graphite-300 border border-graphite-600">${escapeHtml(fig.categoria_nome)}</span>`
-          : "";
-
-        // Parse tags
-        let tagsHtml = "";
-        try {
-          const tags = JSON.parse(fig.tags || "[]");
-          if (tags.length > 0) {
-            tagsHtml = tags.map(t => `<span class="px-1.5 py-0.5 rounded text-[10px] bg-gold-500/5 text-gold-300 border border-gold-500/10">${escapeHtml(t)}</span>`).join("");
-          }
-        } catch (e) { /* ignore */ }
-
-        return `
-          <div class="bg-graphite-800 border border-graphite-700 rounded-2xl overflow-hidden hover:border-gold-500/20 transition-all group">
-            <div class="aspect-[4/3] bg-graphite-700 flex items-center justify-center overflow-hidden">
-              ${fig.url_imagem
-                ? `<img src="/static/${fig.url_imagem}" alt="${escapeHtml(fig.titulo)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">`
-                : '<span class="text-graphite-500 text-xs">Sem imagem</span>'}
+      return `
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-amber-300 transition-colors">
+          <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+            ${fig.url_imagem
+              ? `<img src="/static/${fig.url_imagem}" alt="${esc(fig.titulo)}" class="w-full h-full object-cover" loading="lazy">`
+              : '<span class="text-gray-400 text-xs">Sem imagem</span>'}
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="font-semibold text-gray-900 text-sm truncate flex-1">${esc(fig.titulo)}</h3>
+              ${activeBadge}
             </div>
-            <div class="p-4 space-y-2">
-              <div class="flex items-start justify-between gap-2">
-                <h3 class="font-semibold text-white text-sm truncate flex-1">${escapeHtml(fig.titulo)}</h3>
-                ${activeBadge}
-              </div>
-              ${fig.descricao ? `<p class="text-graphite-300 text-xs line-clamp-2">${escapeHtml(fig.descricao)}</p>` : ""}
-              ${tagsHtml ? `<div class="flex flex-wrap gap-1">${tagsHtml}</div>` : ""}
-              <div class="flex items-center gap-2">
-                ${precoStr}
-                ${catBadge}
-              </div>
-              <div class="flex gap-2 pt-1">
-                <button onclick='editVitrine(${JSON.stringify(fig).replace(/'/g, "&#39;")})'
-                        class="flex-1 bg-graphite-700 hover:bg-graphite-600 text-white text-xs font-medium py-2 rounded-lg transition-all">
-                  Editar
-                </button>
-                <button onclick="deleteVitrine(${fig.id}, '${escapeHtml(fig.titulo)}')"
-                        class="bg-red-600/10 hover:bg-red-600/30 text-red-400 hover:text-red-300 text-xs font-medium px-3 py-2 rounded-lg transition-all border border-red-700/20 hover:border-red-600/40">
-                  Excluir
-                </button>
-              </div>
+            ${fig.descricao ? `<p class="text-gray-500 text-xs line-clamp-2">${esc(fig.descricao)}</p>` : ""}
+            <div class="flex items-center gap-2">${precoStr}</div>
+            <div class="flex gap-2 pt-1">
+              <button onclick='editVitrine(${JSON.stringify(fig).replace(/'/g, "&#39;")})' class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium py-2 rounded-lg">Editar</button>
+              <button onclick="deleteVitrine(${fig.id}, '${esc(fig.titulo)}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium px-3 py-2 rounded-lg border border-red-200">Excluir</button>
             </div>
-          </div>`;
-      })
-      .join("");
+          </div>
+        </div>`;
+    }).join("");
   } catch (err) {
-    grid.innerHTML = '<div class="col-span-full text-center py-12 text-red-400">Erro ao carregar vitrine.</div>';
+    grid.innerHTML = '<div class="col-span-full text-center py-12 text-red-500">Erro ao carregar.</div>';
   }
 }
 
-function openVitrineForm(figData) {
-  const modal = document.getElementById("vitrine-modal");
-  document.getElementById("vitrine-modal-title").textContent = figData ? "Editar Figurinha" : "Nova Figurinha";
+function openForm(figData) {
+  document.getElementById("vitrine-modal-title").textContent = figData ? "Editar Modelo" : "Novo Modelo";
   document.getElementById("vitrine-edit-id").value = figData ? figData.id : "";
   document.getElementById("vitrine-titulo").value = figData ? figData.titulo : "";
   document.getElementById("vitrine-descricao").value = figData ? (figData.descricao || "") : "";
   document.getElementById("vitrine-preco").value = figData && figData.preco ? figData.preco : "";
-
-  // Tags
-  const tagsInput = document.getElementById("vitrine-tags");
-  if (tagsInput) {
-    if (figData && figData.tags) {
-      try {
-        const tags = JSON.parse(figData.tags);
-        tagsInput.value = Array.isArray(tags) ? tags.join(", ") : "";
-      } catch (e) {
-        tagsInput.value = "";
-      }
-    } else {
-      tagsInput.value = "";
-    }
-  }
-
-  if (figData && figData.categoria_id) {
-    document.getElementById("vitrine-categoria").value = figData.categoria_id;
-  } else {
-    document.getElementById("vitrine-categoria").value = "";
-  }
 
   if (figData) {
     document.getElementById("vitrine-active-field").classList.remove("hidden");
@@ -218,8 +134,9 @@ function openVitrineForm(figData) {
     document.getElementById("vitrine-active-field").classList.add("hidden");
   }
 
-  // Reset image upload
-  document.getElementById("vitrine-imagem-input").value = "";
+  // Reset image
+  imgInput = document.getElementById("vitrine-imagem-input");
+  if (imgInput) imgInput.value = "";
   const previewImg = document.getElementById("vitrine-preview-img");
   previewImg.classList.add("hidden");
   document.getElementById("vitrine-drop-content").classList.remove("hidden");
@@ -230,16 +147,15 @@ function openVitrineForm(figData) {
     document.getElementById("vitrine-drop-content").classList.add("hidden");
   }
 
+  const modal = document.getElementById("vitrine-modal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
   document.body.style.overflow = "hidden";
 }
 
-function editVitrine(fig) {
-  openVitrineForm(fig);
-}
+function editVitrine(fig) { openForm(fig); }
 
-function closeVitrineForm() {
+function closeForm() {
   const modal = document.getElementById("vitrine-modal");
   modal.classList.add("hidden");
   modal.classList.remove("flex");
@@ -247,43 +163,23 @@ function closeVitrineForm() {
 }
 
 async function deleteVitrine(id, titulo) {
-  if (!confirm(`Excluir "${titulo}"?\nEsta ação não pode ser desfeita.`)) return;
-
+  if (!confirm(`Excluir "${titulo}"?`)) return;
   try {
     const res = await fetch(`/admin/api/vitrine/${id}`, { method: "DELETE" });
     const data = await res.json();
-    if (data.success) {
-      showToast("Figurinha excluída.", "success");
-      loadVitrine();
-    } else {
-      showToast(data.error || "Erro ao excluir.", "error");
-    }
-  } catch (err) {
-    showToast("Erro de conexão.", "error");
-  }
+    if (data.success) { showToast("Excluído!", "success"); loadVitrine(); }
+    else showToast(data.error || "Erro.", "error");
+  } catch (err) { showToast("Erro de conexão.", "error"); }
 }
 
-function showToast(message, type) {
+function showToast(msg, type) {
   const existing = document.querySelector(".toast-msg");
   if (existing) existing.remove();
-
-  const toast = document.createElement("div");
-  toast.className =
-    "toast-msg fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-2xl text-sm font-medium max-w-sm text-center transition-all duration-300 " +
-    (type === "success" ? "bg-emerald-600 text-white" : "bg-red-600 text-white");
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translate(-50%, 10px)";
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  const t = document.createElement("div");
+  t.className = "toast-msg fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-sm font-medium " + (type === "success" ? "bg-emerald-600 text-white" : "bg-red-600 text-white");
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translate(-50%, 10px)"; setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-function escapeHtml(str) {
-  if (!str) return "";
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
+function esc(str) { if (!str) return ""; const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }

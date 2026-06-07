@@ -17,7 +17,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
-        display: ["Playfair Display", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -66,19 +65,6 @@ const config: Config = {
           900: "#725a1b",
           950: "#544213",
         },
-        graphite: {
-          50: "#fafafa",
-          100: "#f4f4f5",
-          200: "#e4e4e7",
-          300: "#a1a1aa",
-          400: "#71717a",
-          500: "#52525b",
-          600: "#3f3f46",
-          700: "#27272a",
-          800: "#1f1f23",
-          900: "#18181b",
-          950: "#0f0f11",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -90,43 +76,13 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-10px)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        "scale-soft": {
-          "0%, 100%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.02)" },
-        },
-        "spin-slow": {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
-        },
-        pulse: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
-        },
       },
       animation: {
-        "fade-up": "fade-up 0.6s ease-out",
-        "fade-in": "fade-in 0.4s ease-out",
-        float: "float 6s ease-in-out infinite",
-        shimmer: "shimmer 2s linear infinite",
-        "scale-soft": "scale-soft 3s ease-in-out infinite",
-        "spin-slow": "spin-slow 20s linear infinite",
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-up": "fade-up 0.4s ease-out",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 };
 
 export default config;

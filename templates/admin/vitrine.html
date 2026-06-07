@@ -1,181 +1,98 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Vitrine — Figurinhas Premium</title>
+    <title>Vitrine — Figurinhas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Playfair Display', 'serif'],
-                    },
-                    colors: {
-                        gold: {
-                            50: '#fef9e7', 100: '#fcf0c3', 200: '#f9e39b', 300: '#f5d46e',
-                            400: '#f0c64a', 500: '#D4AF37', 600: '#c4a233', 700: '#a8892a',
-                            800: '#8c7122', 900: '#725a1b', 950: '#544213',
-                        },
-                        graphite: {
-                            50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#a1a1aa',
-                            400: '#71717a', 500: '#52525b', 600: '#3f3f46', 700: '#27272a',
-                            800: '#1f1f23', 850: '#1c1c20', 900: '#18181b', 950: '#0f0f11',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}</script>
+    <style>
+      ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px}
+      .spinner{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+      .toast-msg{animation:toastIn .3s ease-out}@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+    </style>
 </head>
-<body class="bg-graphite-900 text-white font-sans antialiased min-h-screen">
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
 
-    <!-- Top Navigation -->
-    <nav class="sticky top-0 z-50 bg-graphite-900/95 backdrop-blur-sm border-b border-graphite-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-sm shadow-lg shadow-gold-500/20">FS</div>
-                        <span class="font-bold text-white hidden sm:inline font-display">Admin</span>
-                    </div>
-                    <a href="/admin/dashboard" class="text-sm font-medium text-graphite-300 hover:text-white transition-colors">Pedidos</a>
-                    <a href="/admin/vitrine" class="text-sm font-medium text-gold-400 border-b-2 border-gold-500 pb-0.5">Vitrine</a>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-graphite-300 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
-                    <a href="/" class="text-graphite-300 hover:text-white text-xs transition-colors">Site</a>
-                    <a href="{{ url_for('auth.logout') }}" class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors">Sair</a>
-                </div>
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-extrabold text-xs">FS</div>
+                <span class="font-bold text-gray-900 hidden sm:inline">Admin</span>
             </div>
+            <a href="/admin/dashboard" class="text-sm text-gray-500 hover:text-gray-900">Pedidos</a>
+            <a href="/admin/vitrine" class="text-sm font-semibold text-amber-600 border-b-2 border-amber-500 pb-0.5">Vitrine</a>
         </div>
-    </nav>
+        <div class="flex items-center gap-3">
+            <span class="text-gray-400 text-xs">{{ session.get('admin_username', 'Admin') }}</span>
+            <a href="/" class="text-gray-400 hover:text-gray-600 text-xs">Site</a>
+            <a href="{{ url_for('auth.logout') }}" class="text-red-500 hover:text-red-400 text-xs font-medium">Sair</a>
+        </div>
+    </div>
+</nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Vitrine</h1>
+            <p class="text-gray-500 text-sm mt-0.5">Gerencie os modelos de adesivos</p>
+        </div>
+        <button onclick="openForm()" class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Novo Modelo
+        </button>
+    </div>
 
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div id="vitrine-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="col-span-full text-center py-12 text-gray-400"><span class="spinner inline-block w-5 h-5 border-2 border-gray-300 border-t-amber-500 rounded-full"></span></div>
+    </div>
+    <div id="vitrine-empty" class="hidden text-center py-16 text-gray-400"><p>Nenhum modelo cadastrado.</p></div>
+</div>
+
+<!-- Form Modal -->
+<div id="vitrine-modal" class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-bold" id="vitrine-modal-title">Novo Modelo</h3><button onclick="closeForm()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+        <form id="vitrine-form" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" id="vitrine-edit-id" value="">
             <div>
-                <h1 class="text-2xl font-bold text-white font-display">Gerenciar Vitrine</h1>
-                <p class="text-graphite-300 text-sm mt-1">{{ categorias|length }} categorias disponíveis</p>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Imagem *</label>
+                <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-amber-400 transition-colors bg-gray-50" id="vitrine-drop-zone">
+                    <input type="file" name="imagem" id="vitrine-imagem-input" accept=".png,.jpg,.jpeg,.webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 hidden">
+                    <div id="vitrine-drop-content">
+                        <svg class="w-8 h-8 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <p class="text-sm text-gray-500">Clique para upload</p>
+                    </div>
+                    <img id="vitrine-preview-img" src="" class="hidden max-h-32 mx-auto rounded-lg mt-2">
+                </div>
             </div>
-            <button onclick="openVitrineForm()"
-                    class="inline-flex items-center gap-2 bg-gold-600 hover:bg-gold-500 text-graphite-900 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-gold-600/20 active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nova Figurinha
-            </button>
-        </div>
-
-        <!-- Category Filter -->
-        <div class="flex items-center gap-2 overflow-x-auto mb-6 pb-1">
-            <button data-vitrine-filter="all"
-                    class="vitrine-filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-gold-600 text-graphite-900 transition-all hover:bg-gold-500 active:scale-95">
-                Todos
-            </button>
-            {% for cat in categorias %}
-            <button data-vitrine-filter="{{ cat.slug }}"
-                    class="vitrine-filter-btn flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold bg-graphite-800 text-graphite-300 hover:text-white hover:bg-graphite-700 transition-all active:scale-95">
-                {{ cat.nome }}
-            </button>
-            {% endfor %}
-        </div>
-
-        <!-- Figurinhas Grid (Admin View) -->
-        <div id="vitrine-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <div class="col-span-full text-center py-12 text-graphite-500">
-                <span class="spinner inline-block w-5 h-5 border-2 border-graphite-600 border-t-gold-500 rounded-full"></span>
+            <div>
+                <label for="vitrine-titulo" class="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+                <input type="text" id="vitrine-titulo" name="titulo" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="Ex: Coleção Aurora Dourada">
             </div>
-        </div>
-
-        <div id="vitrine-empty" class="hidden text-center py-16">
-            <p class="text-graphite-300">Nenhuma figurinha cadastrada.</p>
-        </div>
+            <div>
+                <label for="vitrine-descricao" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <textarea id="vitrine-descricao" name="descricao" rows="2" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 resize-none" placeholder="Detalhes do adesivo..."></textarea>
+            </div>
+            <div>
+                <label for="vitrine-preco" class="block text-sm font-medium text-gray-700 mb-1">Preço (R$) — deixe 0 para "Sob Consulta"</label>
+                <input type="number" id="vitrine-preco" name="preco" step="0.01" min="0" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="0,00">
+            </div>
+            <div id="vitrine-active-field" class="hidden">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="vitrine-is-active" name="is_active" value="1" checked class="w-4 h-4 rounded text-amber-500 focus:ring-amber-500">
+                    <span class="text-sm text-gray-700">Ativo na vitrine</span>
+                </label>
+            </div>
+            <div class="flex gap-3 pt-1">
+                <button type="submit" id="vitrine-submit-btn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl text-sm">Salvar</button>
+                <button type="button" onclick="closeForm()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 rounded-xl text-sm">Cancelar</button>
+            </div>
+        </form>
     </div>
-
-    <!-- Figurinha Form Modal -->
-    <div id="vitrine-modal" class="fixed inset-0 z-[90] hidden bg-graphite-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-graphite-800 border border-graphite-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-white font-display" id="vitrine-modal-title">Nova Figurinha</h3>
-                <button onclick="closeVitrineForm()" class="text-graphite-300 hover:text-white text-2xl leading-none">&times;</button>
-            </div>
-            <form id="vitrine-form" enctype="multipart/form-data" class="space-y-4">
-                <input type="hidden" id="vitrine-edit-id" value="">
-                <div>
-                    <label class="block text-sm font-medium text-graphite-300 mb-1.5">Imagem / Mockup</label>
-                    <div class="relative border-2 border-dashed border-graphite-700 rounded-xl p-4 text-center cursor-pointer hover:border-gold-500/50 transition-colors bg-graphite-800/50" id="vitrine-drop-zone">
-                        <input type="file" name="imagem" id="vitrine-imagem-input" accept=".png,.jpg,.jpeg,.webp"
-                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div id="vitrine-drop-content" class="pointer-events-none">
-                            <svg class="w-8 h-8 mx-auto text-graphite-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <p class="text-graphite-300 text-xs">Clique para upload da imagem</p>
-                        </div>
-                        <img id="vitrine-preview-img" src="" class="hidden max-h-32 mx-auto rounded-lg mt-2 pointer-events-none">
-                    </div>
-                </div>
-                <div>
-                    <label for="vitrine-titulo" class="block text-sm font-medium text-graphite-300 mb-1.5">Título *</label>
-                    <input type="text" id="vitrine-titulo" name="titulo" required
-                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
-                           placeholder="Ex: Coleção Aurora Dourada">
-                </div>
-                <div>
-                    <label for="vitrine-descricao" class="block text-sm font-medium text-graphite-300 mb-1.5">Descrição de Luxo</label>
-                    <textarea id="vitrine-descricao" name="descricao" rows="2"
-                              class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all resize-none"
-                              placeholder="Ex: Adesivo premium com acabamento holográfico. Ideal para notebooks, capas de celular e superfícies lisas. Design exclusivo."></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="vitrine-categoria" class="block text-sm font-medium text-graphite-300 mb-1.5">Categoria</label>
-                        <select id="vitrine-categoria" name="categoria_id"
-                                class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all">
-                            <option value="">Nenhuma</option>
-                            {% for cat in categorias %}
-                            <option value="{{ cat.id }}">{{ cat.nome }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="vitrine-preco" class="block text-sm font-medium text-graphite-300 mb-1.5">Preço (R$)</label>
-                        <input type="number" id="vitrine-preco" name="preco" step="0.01" min="0"
-                               class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
-                               placeholder="0 = Sob Consulta">
-                    </div>
-                </div>
-                <div>
-                    <label for="vitrine-tags" class="block text-sm font-medium text-graphite-300 mb-1.5">Tags (separadas por vírgula)</label>
-                    <input type="text" id="vitrine-tags" name="tags"
-                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
-                           placeholder="Ex: holográfico, premium, edição-limitada">
-                </div>
-                <div id="vitrine-active-field" class="hidden">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="vitrine-is-active" name="is_active" value="1" checked
-                               class="w-4 h-4 rounded bg-graphite-800 border-graphite-600 text-gold-600 focus:ring-gold-500">
-                        <span class="text-sm text-graphite-300">Ativo na vitrine</span>
-                    </label>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" id="vitrine-submit-btn"
-                            class="flex-1 bg-gold-600 hover:bg-gold-500 text-graphite-900 font-semibold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]">
-                        Salvar
-                    </button>
-                    <button type="button" onclick="closeVitrineForm()"
-                            class="flex-1 bg-graphite-700 hover:bg-graphite-600 text-white font-medium py-2.5 rounded-xl transition-all text-sm">
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+</div>
 
 <script src="{{ url_for('static', filename='js/admin-vitrine.js') }}"></script>
 </body>

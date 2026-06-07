@@ -1,147 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { cn } from "@/lib/utils";
-import GalleryCard from "@/components/GalleryCard";
-import OrderConfigurator from "@/components/OrderConfigurator";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Sparkles,
-  ChevronDown,
-  Star,
-  Shield,
-  Palette,
-  Truck,
-  Zap,
-  Gem,
-  ArrowRight,
-  Scissors,
-  Wand2,
-} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Sparkles, ShoppingBag, Star, Send, Upload, X, Image } from "lucide-react";
 
-// ── Types ──────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────
 interface Figurinha {
   id: number;
   titulo: string;
   descricao: string;
   url_imagem: string;
-  categoria_nome: string;
-  categoria_slug: string;
   preco: number | null;
-  tags?: string;
 }
 
-// ── Features ───────────────────────────────────────────────
-const FEATURES = [
-  {
-    icon: Palette,
-    title: "Acabamento Premium",
-    desc: "Brilhante, Fosco Acetinado, Refletivo e Holográfico Luxo",
-  },
-  {
-    icon: Shield,
-    title: "Vinil de Alta Performance",
-    desc: "Resistente a sol, chuva, lavagem e uso intenso",
-  },
-  {
-    icon: Truck,
-    title: "Entrega para Todo Brasil",
-    desc: "Embalagem premium com rastreio gratuito",
-  },
-  {
-    icon: Gem,
-    title: "Design Exclusivo",
-    desc: "Cada peça é tratada como obra de arte única",
-  },
+const FINISHES = [
+  { value: "Brilhante", icon: "✨", label: "Brilhante" },
+  { value: "Fosco Acetinado", icon: "🌫️", label: "Fosco" },
+  { value: "Refletivo Premium", icon: "💎", label: "Refletivo" },
+  { value: "Holográfico Luxo", icon: "🌈", label: "Holográfico" },
 ];
 
-const TESTIMONIALS = [
-  {
-    initials: "RL",
-    name: "Ricardo L.",
-    detail: "Coleção Holográfica",
-    text: "Os adesivos holográficos ficaram incríveis na minha capinha. Qualidade premium de verdade, entrega super rápida e embalagem impecável.",
-  },
-  {
-    initials: "MA",
-    name: "Marina A.",
-    detail: "Kit Corporativo",
-    text: "Encomendei adesivos para o lançamento da minha marca. Acabamento refletivo premium, todos elogiaram. Já virei cliente fiel!",
-  },
-  {
-    initials: "JF",
-    name: "João F.",
-    detail: "Coleção Minimalista",
-    text: "O acabamento fosco acetinado é de outro nível. A vitrine é linda e o configurador tornou o pedido muito simples. Resultado perfeito.",
-  },
-];
-
-// ── Navbar ─────────────────────────────────────────────────
+// ── Navbar ────────────────────────────────────────
 function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const cb = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", cb, { passive: true });
-    return () => window.removeEventListener("scroll", cb);
-  }, []);
-
   return (
-    <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        scrolled
-          ? "glass border-b border-graphite-800/50 py-3"
-          : "bg-transparent py-4"
-      )}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-xs shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/30 transition-all">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-white font-extrabold text-xs">
             FS
           </div>
-          <span className="font-bold text-white hidden sm:inline font-display text-lg">
-            Figurinhas<span className="text-gold-400">.</span>
+          <span className="font-bold text-gray-900 text-lg">
+            Figurinhas<span className="text-gold-600">.</span>
           </span>
         </a>
-
-        <div className="flex items-center gap-2">
-          <a href="#vitrine">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-graphite-400 hover:text-white"
-            >
-              Vitrine
-            </Button>
-          </a>
-          <a href="#configurador">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-graphite-400 hover:text-white"
-            >
-              Configurador
-            </Button>
-          </a>
-          <a href="/admin/login" target="_blank">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-graphite-400 hover:text-graphite-300 text-xs"
-            >
-              Admin
-            </Button>
-          </a>
-          <a href="#configurador">
-            <Button
-              size="sm"
-              className="bg-gold-600 hover:bg-gold-500 text-graphite-900 rounded-full px-5 shadow-lg shadow-gold-600/15 font-semibold"
-            >
-              <Wand2 className="w-3.5 h-3.5 mr-1.5" />
-              Criar Pedido
-            </Button>
+        <div className="flex items-center gap-3">
+          <a href="#vitrine" className="text-sm text-gray-500 hover:text-gray-900">Vitrine</a>
+          <a href="#orcamento" className="text-sm text-gray-500 hover:text-gray-900">Orçamento</a>
+          <a href="/admin/login" className="text-xs text-gray-400 hover:text-gray-600">Admin</a>
+          <a href="#orcamento" className="inline-flex items-center gap-1.5 bg-gold-500 hover:bg-gold-600 text-white rounded-full px-4 py-2 text-sm font-semibold transition-colors">
+            <Sparkles className="w-3.5 h-3.5" />
+            Pedir Orçamento
           </a>
         </div>
       </div>
@@ -149,378 +47,259 @@ function Navbar() {
   );
 }
 
-// ── Main Page ──────────────────────────────────────────────
+// ── Page ──────────────────────────────────────────
 export default function Home() {
   const [figurinhas, setFigurinhas] = useState<Figurinha[]>([]);
-  const [activeCategoria, setActiveCategoria] = useState("all");
-  const [categorias, setCategorias] = useState<{ nome: string; slug: string }[]>(
-    []
-  );
   const [selectedFig, setSelectedFig] = useState<Figurinha | null>(null);
 
-  // Scroll parallax
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
-  const heroY = useTransform(scrollY, [0, 500], [0, -50]);
+  // ── Form state ────────────────────────────
+  const [files, setFiles] = useState<File[]>([]);
+  const [finish, setFinish] = useState("");
+  const [largura, setLargura] = useState("");
+  const [altura, setAltura] = useState("");
+  const [quantidade, setQuantidade] = useState(10);
+  const [nome, setNome] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [sending, setSending] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // Fetch figurinhas from API
   useEffect(() => {
     fetch("/api/figurinhas")
       .then((r) => r.json())
-      .then((data: Figurinha[]) => {
-        setFigurinhas(data);
-        const cats = new Map<string, { nome: string; slug: string }>();
-        data.forEach((f) => {
-          if (f.categoria_slug && !cats.has(f.categoria_slug)) {
-            cats.set(f.categoria_slug, {
-              nome: f.categoria_nome,
-              slug: f.categoria_slug,
-            });
-          }
-        });
-        setCategorias(Array.from(cats.values()));
-      })
+      .then(setFigurinhas)
       .catch(() => {});
   }, []);
 
-  const filteredFigs =
-    activeCategoria === "all"
-      ? figurinhas
-      : figurinhas.filter((f) => f.categoria_slug === activeCategoria);
+  // ── File handlers ─────────────────────────
+  function handleFiles(newFiles: FileList | null) {
+    if (!newFiles) return;
+    setFiles((prev) => [...prev, ...Array.from(newFiles)].slice(0, 5));
+  }
+  function removeFile(i: number) { setFiles((prev) => prev.filter((_, idx) => idx !== i)); }
 
-  function handleSelectFig(fig: Figurinha) {
-    setSelectedFig((prev) => (prev?.id === fig.id ? null : fig));
+  function handleWhatsApp(v: string) {
+    let val = v.replace(/\D/g, "").slice(0, 11);
+    if (val.length > 5) val = val.replace(/(\d{5})(\d)/, "$1-$2");
+    if (val.length > 0) val = val.replace(/^(\d{2})(\d)/, "($1) $2");
+    setWhatsapp(val);
   }
 
+  // ── Submit ────────────────────────────────
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome || !whatsapp || !finish) return;
+    setSending(true);
+
+    const form = new FormData();
+    form.set("cliente_nome", nome);
+    form.set("cliente_whatsapp", whatsapp.replace(/\D/g, ""));
+    form.set("quantidade", String(quantidade));
+    form.set("largura_cm", largura);
+    form.set("altura_cm", altura);
+    form.set("tamanho_estimado", largura && altura ? `${largura}x${altura} cm` : "");
+    form.set("tipo_acabamento", finish);
+    if (selectedFig) form.set("referencia_figurinha_id", String(selectedFig.id));
+    files.forEach((f) => form.append("artworks", f));
+
+    try {
+      const res = await fetch("/api/pedidos", { method: "POST", body: form });
+      const data = await res.json();
+      if (data.success) window.open(data.whatsapp_link, "_blank");
+      else alert(data.errors?.join("\n") || "Erro.");
+    } catch { alert("Erro de conexão."); }
+    finally { setSending(false); }
+  }
+
+  const formatPrice = (p: number | null) =>
+    p ? `R$ ${p.toFixed(2).replace(".", ",")}` : "Sob Consulta";
+
   return (
-    <div className="min-h-screen bg-graphite-900 text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-16">
-        {/* Background effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(212,175,55,0.08),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_50%,rgba(212,175,55,0.04),transparent)]" />
-
-        <motion.div
-          style={{ opacity: heroOpacity, y: heroY }}
-          className="relative z-10 max-w-4xl mx-auto px-4 text-center"
-        >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="mb-6"
-          >
-            <Badge className="px-4 py-1.5 text-xs gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
-              <Sparkles className="w-3 h-3" />
-              Coleção Premium 2026
-            </Badge>
-          </motion.div>
-
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.7 }}
-            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight mb-6"
-          >
-            Adesivos de{" "}
-            <span className="text-gradient-gold">Luxo Premium</span>
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7 }}
-            className="text-base sm:text-lg text-graphite-400 max-w-2xl mx-auto leading-relaxed mb-8"
-          >
-            Do design minimalista ao holográfico. Peças exclusivas com{" "}
-            <span className="text-graphite-300">acabamentos premium</span>{" "}
-            que transformam superfícies em arte. Cada adesivo é tratado como
-            uma obra-prima.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
-            className="flex items-center justify-center gap-4 flex-wrap"
-          >
-            <a href="#vitrine">
-              <Button
-                size="lg"
-                className="bg-gold-600 hover:bg-gold-500 text-graphite-900 rounded-full px-8 h-12 font-bold shadow-lg shadow-gold-600/15 hover:shadow-gold-500/25 transition-all text-sm"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Explorar Coleção
-              </Button>
-            </a>
-            <a href="#configurador">
-              <Button
-                variant="outline"
-                size="lg"
-                className="rounded-full px-8 h-12 border-graphite-700 text-graphite-300 hover:text-white hover:border-gold-500/30 transition-all text-sm"
-              >
-                Fazer Orçamento
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
-          </motion.div>
-
-          {/* Quick stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-            className="flex items-center justify-center gap-8 mt-12 text-xs text-graphite-400"
-          >
-            {[
-              { icon: Scissors, label: "Corte Die-Cut" },
-              { icon: Shield, label: "Vinil Premium" },
-              { icon: Truck, label: "Frete Grátis Brasil" },
-            ].map(({ icon: Icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5">
-                <Icon className="w-3 h-3 text-gold-600/50" />
-                {label}
-              </span>
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-graphite-400"
-        >
-          <ChevronDown className="w-5 h-5" />
+      {/* Hero */}
+      <section className="py-16 sm:py-24 text-center px-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-50 text-gold-700 text-xs font-medium border border-gold-200 mb-5">
+            <Sparkles className="w-3 h-3" /> Adesivos Premium
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            Adesivos de <span className="text-gold-600">Qualidade</span>
+          </h1>
+          <p className="text-gray-500 max-w-lg mx-auto text-sm sm:text-base">
+            Escolha um modelo ou envie sua arte. A gente produz e entrega.
+          </p>
         </motion.div>
       </section>
 
-      {/* ── FEATURES STRIP ────────────────────────────────── */}
-      <section className="py-16 border-t border-graphite-800/50">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="text-center group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gold-500/5 border border-gold-500/10 flex items-center justify-center mx-auto mb-3 group-hover:border-gold-500/20 group-hover:bg-gold-500/10 transition-all duration-500">
-                <f.icon className="w-5 h-5 text-gold-400" />
-              </div>
-              <h3 className="font-semibold text-sm text-white mb-1">
-                {f.title}
-              </h3>
-              <p className="text-xs text-graphite-400">{f.desc}</p>
-            </motion.div>
-          ))}
+      {/* Vitrine */}
+      <section id="vitrine" className="py-16 px-4 max-w-6xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Nossos Modelos</h2>
+          <p className="text-gray-500 text-sm">Clique para selecionar e pedir orçamento</p>
         </div>
-      </section>
 
-      {/* ── VITRINE / GALLERY ─────────────────────────────── */}
-      <section id="vitrine" className="py-20 border-t border-graphite-800/50">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <Badge className="mb-4 px-3 py-1 gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
-              <Gem className="w-3 h-3" />
-              Vitrine Premium
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
-              Coleção em Destaque
-            </h2>
-            <p className="text-graphite-400 text-sm max-w-xl mx-auto">
-              Explore nossa curadoria de designs exclusivos. Clique em qualquer
-              peça para selecioná-la e configurar seu pedido.
-            </p>
-          </motion.div>
-
-          {/* Category Filters */}
-          <div className="flex items-center justify-center gap-2 flex-wrap mb-10">
-            <button
-              onClick={() => setActiveCategoria("all")}
-              className={cn(
-                "px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300",
-                activeCategoria === "all"
-                  ? "bg-gold-600 text-graphite-900 shadow-lg shadow-gold-600/15"
-                  : "bg-graphite-800 text-graphite-400 hover:text-white border border-graphite-700 hover:border-graphite-600"
-              )}
-            >
-              Todos
-            </button>
-            {categorias.map((cat) => (
-              <button
-                key={cat.slug}
-                onClick={() => setActiveCategoria(cat.slug)}
-                className={cn(
-                  "px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300",
-                  activeCategoria === cat.slug
-                    ? "bg-gold-600 text-graphite-900 shadow-lg shadow-gold-600/15"
-                    : "bg-graphite-800 text-graphite-400 hover:text-white border border-graphite-700 hover:border-graphite-600"
-                )}
-              >
-                {cat.nome}
-              </button>
-            ))}
+        {figurinhas.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <ShoppingBag className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p>Nenhum modelo cadastrado ainda.</p>
           </div>
-
-          {/* Gallery Grid */}
-          {filteredFigs.length === 0 ? (
-            <div className="text-center py-16 text-graphite-400">
-              <Gem className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p>Nenhum modelo encontrado nesta categoria.</p>
-            </div>
-          ) : (
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-              {filteredFigs.map((fig, i) => (
-                <GalleryCard
-                  key={fig.id}
-                  figurinha={fig}
-                  index={i}
-                  isSelected={selectedFig?.id === fig.id}
-                  onSelect={handleSelectFig}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── ORDER CONFIGURATOR ────────────────────────────── */}
-      <section
-        id="configurador"
-        className="py-20 border-t border-graphite-800/50"
-      >
-        <div className="max-w-2xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8"
-          >
-            <Badge className="mb-4 px-3 py-1 gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
-              <Wand2 className="w-3 h-3" />
-              Configurador de Pedido
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
-              Monte Seu Adesivo
-            </h2>
-            <p className="text-graphite-400 text-sm">
-              {selectedFig
-                ? `Modelo "${selectedFig.titulo}" selecionado. Configure abaixo.`
-                : "Escolha um modelo na vitrine ou faça upload da sua arte."}
-            </p>
-          </motion.div>
-
-          <OrderConfigurator selectedFigurinha={selectedFig} />
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ──────────────────────────────────── */}
-      <section className="py-20 border-t border-graphite-800/50">
-        <div className="max-w-6xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="mb-4 px-3 py-1 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
-              <Star className="w-3 h-3 fill-gold-400" />
-              Prova Social
-            </Badge>
-            <h2 className="text-3xl font-bold text-gradient mb-2 font-display">
-              Clientes Satisfeitos
-            </h2>
-            <p className="text-graphite-400 text-sm">
-              O que dizem sobre nossos adesivos premium
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {figurinhas.map((fig, i) => (
               <motion.div
-                key={t.name}
+                key={fig.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.03 }}
+                onClick={() => setSelectedFig(prev => prev?.id === fig.id ? null : fig)}
+                className={`bg-white rounded-xl border-2 overflow-hidden cursor-pointer transition-all hover:shadow-md ${
+                  selectedFig?.id === fig.id
+                    ? "border-gold-500 shadow-md shadow-gold-100"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
               >
-                <div className="glass rounded-2xl p-6 h-full hover:border-gold-500/10 transition-all duration-500">
-                  <div className="flex items-center gap-1 mb-4 text-gold-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-sm text-graphite-400 leading-relaxed mb-4">
-                    &ldquo;{t.text}&rdquo;
+                <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                  {fig.url_imagem ? (
+                    <img
+                      src={`/static/${fig.url_imagem}`}
+                      alt={fig.titulo}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Image className="w-8 h-8 text-gray-300" />
+                  )}
+                </div>
+                <div className="p-3">
+                  <h3 className="font-semibold text-sm text-gray-900 truncate">{fig.titulo}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{fig.descricao}</p>
+                  <p className={`text-sm font-bold mt-2 ${fig.preco ? "text-gold-700" : "text-gray-400"}`}>
+                    {formatPrice(fig.preco)}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-bold text-xs">
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {t.name}
-                      </p>
-                      <p className="text-xs text-graphite-400">{t.detail}</p>
-                    </div>
-                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* Orçamento */}
+      <section id="orcamento" className="py-16 px-4 bg-white border-t border-gray-200">
+        <div className="max-w-lg mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Solicitar Orçamento</h2>
+            <p className="text-gray-500 text-sm">
+              {selectedFig
+                ? `Modelo selecionado: ${selectedFig.titulo}`
+                : "Preencha os dados abaixo"}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Sua Arte (opcional)</label>
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+                onClick={() => !files.length && fileRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                  dragOver ? "border-gold-400 bg-gold-50" :
+                  files.length ? "border-green-300 bg-green-50" :
+                  "border-gray-300 hover:border-gray-400 bg-gray-50"
+                }`}
+              >
+                <input ref={fileRef} type="file" accept=".png,.jpg,.jpeg,.svg,.webp,.pdf" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+                {files.length === 0 ? (
+                  <>
+                    <Upload className="w-6 h-6 mx-auto text-gray-400 mb-1" />
+                    <p className="text-sm text-gray-500">Clique ou arraste sua imagem</p>
+                    <p className="text-xs text-gray-400 mt-0.5">PNG, JPG, SVG, PDF</p>
+                  </>
+                ) : (
+                  <div className="space-y-1.5">
+                    {files.map((f, i) => (
+                      <div key={i} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-gray-200">
+                        <span className="text-sm text-gray-700 truncate">{f.name}</span>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="text-gray-400 hover:text-red-500"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                    <p className="text-xs text-gray-400">Clique para adicionar mais</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Acabamento */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Acabamento</label>
+              <div className="grid grid-cols-4 gap-2">
+                {FINISHES.map((f) => (
+                  <button
+                    key={f.value}
+                    type="button"
+                    onClick={() => setFinish(f.value)}
+                    className={`py-3 rounded-xl text-center border transition-all ${
+                      finish === f.value
+                        ? "border-gold-500 bg-gold-50 text-gold-700"
+                        : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="text-lg block">{f.icon}</span>
+                    <span className="text-[10px] font-medium">{f.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Dimensões + Quantidade */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Largura (cm)</label>
+                <input type="number" value={largura} onChange={(e) => setLargura(e.target.value)} placeholder="10" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Altura (cm)</label>
+                <input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="8" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Quantidade</label>
+                <input type="number" value={quantidade} onChange={(e) => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))} min="1" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500" />
+              </div>
+            </div>
+
+            {/* Contato */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Seu Nome *</label>
+                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="Nome completo" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp *</label>
+                <input type="tel" value={whatsapp} onChange={(e) => handleWhatsApp(e.target.value)} maxLength={15} required placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500" />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button type="submit" disabled={sending || !nome || !whatsapp || !finish} className="w-full py-3 bg-gold-500 hover:bg-gold-600 disabled:bg-gray-300 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
+              {sending ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              {sending ? "Enviando..." : "Enviar Orçamento via WhatsApp"}
+            </button>
+          </form>
         </div>
       </section>
 
-      {/* ── FOOTER ────────────────────────────────────────── */}
-      <footer className="border-t border-graphite-800/50 py-12">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2.5 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-sm shadow-lg shadow-gold-500/20">
-              FS
-            </div>
-            <span className="font-bold text-white text-lg font-display">
-              Figurinhas<span className="text-gold-400">.</span>
-            </span>
-          </div>
-          <p className="text-sm text-graphite-400 mb-6">
-            Adesivos premium personalizados. Qualidade, design e sofisticação.
-          </p>
-          <div className="flex items-center justify-center gap-6 text-xs text-graphite-400">
-            <a href="#vitrine" className="hover:text-gold-400 transition-colors">
-              Vitrine
-            </a>
-            <a
-              href="#configurador"
-              className="hover:text-gold-400 transition-colors"
-            >
-              Configurador
-            </a>
-            <a
-              href="/admin/login"
-              className="hover:text-gold-400 transition-colors"
-            >
-              Admin
-            </a>
-          </div>
-          <p className="text-xs text-graphite-700 mt-6">
-            © {new Date().getFullYear()} Figurinhas Premium. Todos os direitos
-            reservados.
-          </p>
-        </div>
+      {/* Footer */}
+      <footer className="py-8 text-center border-t border-gray-200 bg-white">
+        <p className="text-sm text-gray-400">© {new Date().getFullYear()} Figurinhas. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
