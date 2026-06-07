@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tbody) return;
 
     tbody.innerHTML =
-      '<tr><td colspan="7" class="text-center py-12 text-graphite-500"><span class="spinner inline-block w-5 h-5 border-2 border-graphite-600 border-t-gold-500 rounded-full"></span></td></tr>';
+      '<tr><td colspan="7" class="text-center py-12 text-graphite-400"><span class="spinner inline-block w-5 h-5 border-2 border-graphite-600 border-t-gold-500 rounded-full"></span></td></tr>';
 
     try {
       let url = "/admin/api/pedidos";
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : '<span class="text-graphite-600 text-xs">—</span>';
 
         const refTitle = order.referencia_titulo
-          ? `<span class="text-graphite-500 text-xs">${escapeHtml(order.referencia_titulo)}</span>`
+          ? `<span class="text-graphite-400 text-xs">${escapeHtml(order.referencia_titulo)}</span>`
           : "";
 
         const qtdUrgencia = order.urgencia
@@ -186,11 +186,11 @@ function openOrderModal(order) {
            <a href="/static/${a.arquivo_path}" target="_blank" class="text-gold-400 hover:text-gold-300 text-xs font-medium">Download</a>
          </div>`
       ).join("")
-    : '<p class="text-graphite-500 text-xs">Nenhum arquivo enviado</p>';
+    : '<p class="text-graphite-400 text-xs">Nenhum arquivo enviado</p>';
 
   const urgencyLevel = order.urgencia
     ? `<span class="px-2 py-1 rounded-lg text-xs font-bold ${order.urgencia.includes('Urgente') ? 'bg-red-600/20 text-red-400 border border-red-600/30' : 'bg-graphite-800 text-graphite-300'}">${escapeHtml(order.urgencia)}</span>`
-    : '<span class="text-graphite-500 text-xs">Normal</span>';
+    : '<span class="text-graphite-400 text-xs">Normal</span>';
 
   document.getElementById("modal-order-body").innerHTML = `
     <div class="grid grid-cols-2 gap-3 text-sm">

@@ -178,7 +178,7 @@ export default function OrderConfigurator({
           <h3 className="font-bold text-white text-lg font-display">
             Configurador de Pedido
           </h3>
-          <p className="text-xs text-graphite-400">
+          <p className="text-xs text-graphite-300">
             Monte seu adesivo premium em 3 passos
           </p>
         </div>
@@ -199,7 +199,7 @@ export default function OrderConfigurator({
           {/* ── STEP 0: Art Source ─────────────────────────── */}
           {step === 0 && (
             <div className="space-y-4">
-              <p className="text-sm text-graphite-400 mb-4">
+              <p className="text-sm text-graphite-300 mb-4">
                 Escolha de onde vem a arte do seu adesivo
               </p>
 
@@ -219,7 +219,7 @@ export default function OrderConfigurator({
                       "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
                       artSource === "vitrine"
                         ? "bg-gold-500/10 text-gold-400"
-                        : "bg-graphite-700 text-graphite-400"
+                        : "bg-graphite-700 text-graphite-300"
                     )}
                   >
                     <ShoppingBag className="w-5 h-5" />
@@ -228,7 +228,7 @@ export default function OrderConfigurator({
                     <p className="text-sm font-semibold text-white mb-1">
                       Da Vitrine
                     </p>
-                    <p className="text-xs text-graphite-400">
+                    <p className="text-xs text-graphite-300">
                       Selecionar um modelo da galeria como referência
                     </p>
                     {selectedFigurinha && artSource === "vitrine" && (
@@ -277,7 +277,7 @@ export default function OrderConfigurator({
                       "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
                       artSource === "upload"
                         ? "bg-gold-500/10 text-gold-400"
-                        : "bg-graphite-700 text-graphite-400"
+                        : "bg-graphite-700 text-graphite-300"
                     )}
                   >
                     <Upload className="w-5 h-5" />
@@ -286,7 +286,7 @@ export default function OrderConfigurator({
                     <p className="text-sm font-semibold text-white mb-1">
                       Upload Próprio
                     </p>
-                    <p className="text-xs text-graphite-400">
+                    <p className="text-xs text-graphite-300">
                       Envie sua própria arte ou logotipo
                     </p>
                   </div>
@@ -332,10 +332,10 @@ export default function OrderConfigurator({
                     {files.length === 0 ? (
                       <>
                         <Upload className="w-8 h-8 mx-auto text-graphite-500 mb-2" />
-                        <p className="text-sm text-graphite-400">
+                        <p className="text-sm text-graphite-300">
                           Clique ou arraste sua arte
                         </p>
-                        <p className="text-xs text-graphite-600 mt-1">
+                        <p className="text-xs text-graphite-400 mt-1">
                           PNG, JPG, SVG, PDF — máx 16MB
                         </p>
                       </>
@@ -377,7 +377,7 @@ export default function OrderConfigurator({
           {/* ── STEP 1: Finish ─────────────────────────────── */}
           {step === 1 && (
             <div className="space-y-4">
-              <p className="text-sm text-graphite-400 mb-4">
+              <p className="text-sm text-graphite-300 mb-4">
                 Escolha o acabamento que define o estilo do seu adesivo
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -405,7 +405,7 @@ export default function OrderConfigurator({
                         >
                           {f.label}
                         </p>
-                        <p className="text-xs text-graphite-400">{f.desc}</p>
+                        <p className="text-xs text-graphite-300">{f.desc}</p>
                       </div>
                     </div>
                   </button>
@@ -417,14 +417,14 @@ export default function OrderConfigurator({
           {/* ── STEP 2: Dimensions + Contact ────────────────── */}
           {step === 2 && (
             <div className="space-y-5">
-              <p className="text-sm text-graphite-400">
+              <p className="text-sm text-graphite-300">
                 Defina as dimensões e informe seu contato
               </p>
 
               {/* Dimensions */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-graphite-400 mb-1.5">
+                  <label className="block text-xs font-medium text-graphite-300 mb-1.5">
                     Largura (cm)
                   </label>
                   <input
@@ -434,11 +434,11 @@ export default function OrderConfigurator({
                     min="1"
                     max="200"
                     placeholder="Ex: 10"
-                    className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
+                    className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-400 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-graphite-400 mb-1.5">
+                  <label className="block text-xs font-medium text-graphite-300 mb-1.5">
                     Altura (cm)
                   </label>
                   <input
@@ -448,14 +448,14 @@ export default function OrderConfigurator({
                     min="1"
                     max="200"
                     placeholder="Ex: 8"
-                    className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
+                    className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-400 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
                   />
                 </div>
               </div>
 
               {/* Quantity */}
               <div>
-                <label className="block text-xs font-medium text-graphite-400 mb-1.5">
+                <label className="block text-xs font-medium text-graphite-300 mb-1.5">
                   Quantidade
                 </label>
                 <div className="flex items-center gap-3">
@@ -490,7 +490,7 @@ export default function OrderConfigurator({
 
               {/* Name */}
               <div>
-                <label className="block text-xs font-medium text-graphite-400 mb-1.5">
+                <label className="block text-xs font-medium text-graphite-300 mb-1.5">
                   Seu Nome
                 </label>
                 <input
@@ -499,13 +499,13 @@ export default function OrderConfigurator({
                   onChange={(e) => setNome(e.target.value)}
                   placeholder="Digite seu nome completo"
                   required
-                  className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
+                  className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-400 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
                 />
               </div>
 
               {/* WhatsApp */}
               <div>
-                <label className="block text-xs font-medium text-graphite-400 mb-1.5">
+                <label className="block text-xs font-medium text-graphite-300 mb-1.5">
                   Seu WhatsApp
                 </label>
                 <input
@@ -515,7 +515,7 @@ export default function OrderConfigurator({
                   maxLength={15}
                   required
                   placeholder="(11) 99999-9999"
-                  className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-600 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
+                  className="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-graphite-400 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all"
                 />
               </div>
 

@@ -64,7 +64,7 @@ export default function GalleryCard({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-graphite-600 text-sm">
+            <div className="w-full h-full flex items-center justify-center text-graphite-400 text-sm">
               Sem imagem
             </div>
           )}

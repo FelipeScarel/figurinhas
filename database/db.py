@@ -45,6 +45,20 @@ def init_db():
         with open(schema_path, encoding="utf-8") as f:
             cur.execute(f.read())
         conn.commit()
+
+        # ── Migrations: add columns that may not exist on existing DBs ─
+        migrations = [
+            "ALTER TABLE figurinhas ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '[]'",
+            "ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS largura_cm TEXT",
+            "ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS altura_cm TEXT",
+        ]
+        for m in migrations:
+            try:
+                cur.execute(m)
+                conn.commit()
+            except Exception:
+                conn.rollback()
+
         cur.close()
         conn.close()
     else:
@@ -54,6 +68,20 @@ def init_db():
         with open(schema_path, encoding="utf-8") as f:
             db.executescript(f.read())
         db.commit()
+
+        # ── SQLite migrations (IF NOT EXISTS not supported, use try/except) ─
+        migrations = [
+            "ALTER TABLE figurinhas ADD COLUMN tags TEXT DEFAULT '[]'",
+            "ALTER TABLE pedidos ADD COLUMN largura_cm TEXT",
+            "ALTER TABLE pedidos ADD COLUMN altura_cm TEXT",
+        ]
+        for m in migrations:
+            try:
+                db.execute(m)
+                db.commit()
+            except Exception:
+                pass
+
         db.close()
 
 

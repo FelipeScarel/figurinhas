@@ -129,7 +129,7 @@ function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-graphite-500 hover:text-graphite-300 text-xs"
+              className="text-graphite-400 hover:text-graphite-300 text-xs"
             >
               Admin
             </Button>
@@ -276,7 +276,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="flex items-center justify-center gap-8 mt-12 text-xs text-graphite-500"
+            className="flex items-center justify-center gap-8 mt-12 text-xs text-graphite-400"
           >
             {[
               { icon: Scissors, label: "Corte Die-Cut" },
@@ -295,7 +295,7 @@ export default function Home() {
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-graphite-600"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-graphite-400"
         >
           <ChevronDown className="w-5 h-5" />
         </motion.div>
@@ -319,7 +319,7 @@ export default function Home() {
               <h3 className="font-semibold text-sm text-white mb-1">
                 {f.title}
               </h3>
-              <p className="text-xs text-graphite-500">{f.desc}</p>
+              <p className="text-xs text-graphite-400">{f.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -341,7 +341,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
               Coleção em Destaque
             </h2>
-            <p className="text-graphite-500 text-sm max-w-xl mx-auto">
+            <p className="text-graphite-400 text-sm max-w-xl mx-auto">
               Explore nossa curadoria de designs exclusivos. Clique em qualquer
               peça para selecioná-la e configurar seu pedido.
             </p>
@@ -378,7 +378,7 @@ export default function Home() {
 
           {/* Gallery Grid */}
           {filteredFigs.length === 0 ? (
-            <div className="text-center py-16 text-graphite-600">
+            <div className="text-center py-16 text-graphite-400">
               <Gem className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Nenhum modelo encontrado nesta categoria.</p>
             </div>
@@ -417,7 +417,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
               Monte Seu Adesivo
             </h2>
-            <p className="text-graphite-500 text-sm">
+            <p className="text-graphite-400 text-sm">
               {selectedFig
                 ? `Modelo "${selectedFig.titulo}" selecionado. Configure abaixo.`
                 : "Escolha um modelo na vitrine ou faça upload da sua arte."}
@@ -444,7 +444,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gradient mb-2 font-display">
               Clientes Satisfeitos
             </h2>
-            <p className="text-graphite-500 text-sm">
+            <p className="text-graphite-400 text-sm">
               O que dizem sobre nossos adesivos premium
             </p>
           </motion.div>
@@ -475,7 +475,7 @@ export default function Home() {
                       <p className="text-sm font-medium text-white">
                         {t.name}
                       </p>
-                      <p className="text-xs text-graphite-500">{t.detail}</p>
+                      <p className="text-xs text-graphite-400">{t.detail}</p>
                     </div>
                   </div>
                 </div>
@@ -496,10 +496,10 @@ export default function Home() {
               Figurinhas<span className="text-gold-400">.</span>
             </span>
           </div>
-          <p className="text-sm text-graphite-500 mb-6">
+          <p className="text-sm text-graphite-400 mb-6">
             Adesivos premium personalizados. Qualidade, design e sofisticação.
           </p>
-          <div className="flex items-center justify-center gap-6 text-xs text-graphite-600">
+          <div className="flex items-center justify-center gap-6 text-xs text-graphite-400">
             <a href="#vitrine" className="hover:text-gold-400 transition-colors">
               Vitrine
             </a>

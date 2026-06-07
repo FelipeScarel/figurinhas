@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 270 2% 7%;
+    --background: 260 4% 11%;
     --foreground: 240 5% 96%;
-    --card: 270 2% 5%;
+    --card: 260 4% 13%;
     --card-foreground: 240 5% 96%;
-    --popover: 270 2% 7%;
+    --popover: 260 4% 11%;
     --popover-foreground: 240 5% 96%;
     --primary: 46 65% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 270 2% 10%;
-    --secondary-foreground: 240 5% 84%;
-    --muted: 270 2% 12%;
-    --muted-foreground: 240 3% 60%;
+    --secondary: 260 4% 15%;
+    --secondary-foreground: 240 5% 90%;
+    --muted: 260 4% 16%;
+    --muted-foreground: 240 4% 70%;
     --accent: 46 65% 52%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 270 2% 14%;
-    --input: 270 2% 12%;
+    --border: 260 4% 20%;
+    --input: 260 4% 18%;
     --ring: 46 65% 52%;
     --radius: 1rem;
   }
@@ -31,36 +31,36 @@
   * { @apply border-border; }
   html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
   body {
-    @apply bg-graphite-900 text-foreground;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
 }
 
 @layer components {
   .glass {
-    @apply bg-graphite-900/70 backdrop-blur-2xl border border-graphite-800/60;
+    @apply bg-graphite-800/80 backdrop-blur-2xl border border-graphite-600/40;
   }
   .glass-gold {
-    @apply bg-graphite-900/80 backdrop-blur-2xl border border-gold-500/15;
+    @apply bg-graphite-800/90 backdrop-blur-2xl border border-gold-500/20;
   }
   .glass-light {
-    @apply bg-graphite-800/50 backdrop-blur-xl border border-graphite-700/30;
+    @apply bg-graphite-700/60 backdrop-blur-xl border border-graphite-600/30;
   }
   .text-gradient {
-    @apply bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-b from-zinc-100 to-zinc-400 bg-clip-text text-transparent;
   }
   .text-gradient-gold {
-    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-gold-300 via-gold-400 to-gold-500 bg-clip-text text-transparent;
   }
   .glow-gold {
-    box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.15),
-                0 0 80px -20px rgba(212, 175, 55, 0.08);
+    box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.2),
+                0 0 80px -20px rgba(212, 175, 55, 0.1);
   }
   .glow-gold-sm {
-    box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.15);
   }
 }
 

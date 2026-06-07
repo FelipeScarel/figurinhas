@@ -24,9 +24,9 @@
                             800: '#8c7122', 900: '#725a1b', 950: '#544213',
                         },
                         graphite: {
-                            50: '#f4f4f5', 100: '#e4e4e7', 200: '#c9c9ce', 300: '#a1a1aa',
-                            400: '#71717a', 500: '#52525b', 600: '#3f3f46', 700: '#2a2a2e',
-                            800: '#1a1a1d', 850: '#151518', 900: '#121214', 950: '#0a0a0b',
+                            50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#a1a1aa',
+                            400: '#71717a', 500: '#52525b', 600: '#3f3f46', 700: '#27272a',
+                            800: '#1f1f23', 850: '#1c1c20', 900: '#18181b', 950: '#0f0f11',
                         }
                     }
                 }
@@ -46,12 +46,12 @@
                         <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-sm shadow-lg shadow-gold-500/20">FS</div>
                         <span class="font-bold text-white hidden sm:inline font-display">Admin</span>
                     </div>
-                    <a href="/admin/dashboard" class="text-sm font-medium text-graphite-400 hover:text-white transition-colors">Pedidos</a>
+                    <a href="/admin/dashboard" class="text-sm font-medium text-graphite-300 hover:text-white transition-colors">Pedidos</a>
                     <a href="/admin/vitrine" class="text-sm font-medium text-gold-400 border-b-2 border-gold-500 pb-0.5">Vitrine</a>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-graphite-400 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
-                    <a href="/" class="text-graphite-400 hover:text-white text-xs transition-colors">Site</a>
+                    <span class="text-graphite-300 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
+                    <a href="/" class="text-graphite-300 hover:text-white text-xs transition-colors">Site</a>
                     <a href="{{ url_for('auth.logout') }}" class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors">Sair</a>
                 </div>
             </div>
@@ -64,7 +64,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-white font-display">Gerenciar Vitrine</h1>
-                <p class="text-graphite-400 text-sm mt-1">{{ categorias|length }} categorias disponíveis</p>
+                <p class="text-graphite-300 text-sm mt-1">{{ categorias|length }} categorias disponíveis</p>
             </div>
             <button onclick="openVitrineForm()"
                     class="inline-flex items-center gap-2 bg-gold-600 hover:bg-gold-500 text-graphite-900 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-gold-600/20 active:scale-95">
@@ -95,7 +95,7 @@
         </div>
 
         <div id="vitrine-empty" class="hidden text-center py-16">
-            <p class="text-graphite-400">Nenhuma figurinha cadastrada.</p>
+            <p class="text-graphite-300">Nenhuma figurinha cadastrada.</p>
         </div>
     </div>
 
@@ -104,7 +104,7 @@
         <div class="bg-graphite-800 border border-graphite-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-white font-display" id="vitrine-modal-title">Nova Figurinha</h3>
-                <button onclick="closeVitrineForm()" class="text-graphite-400 hover:text-white text-2xl leading-none">&times;</button>
+                <button onclick="closeVitrineForm()" class="text-graphite-300 hover:text-white text-2xl leading-none">&times;</button>
             </div>
             <form id="vitrine-form" enctype="multipart/form-data" class="space-y-4">
                 <input type="hidden" id="vitrine-edit-id" value="">
@@ -115,7 +115,7 @@
                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                         <div id="vitrine-drop-content" class="pointer-events-none">
                             <svg class="w-8 h-8 mx-auto text-graphite-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <p class="text-graphite-400 text-xs">Clique para upload da imagem</p>
+                            <p class="text-graphite-300 text-xs">Clique para upload da imagem</p>
                         </div>
                         <img id="vitrine-preview-img" src="" class="hidden max-h-32 mx-auto rounded-lg mt-2 pointer-events-none">
                     </div>
@@ -123,13 +123,13 @@
                 <div>
                     <label for="vitrine-titulo" class="block text-sm font-medium text-graphite-300 mb-1.5">Título *</label>
                     <input type="text" id="vitrine-titulo" name="titulo" required
-                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                            placeholder="Ex: Coleção Aurora Dourada">
                 </div>
                 <div>
                     <label for="vitrine-descricao" class="block text-sm font-medium text-graphite-300 mb-1.5">Descrição de Luxo</label>
                     <textarea id="vitrine-descricao" name="descricao" rows="2"
-                              class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all resize-none"
+                              class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all resize-none"
                               placeholder="Ex: Adesivo premium com acabamento holográfico. Ideal para notebooks, capas de celular e superfícies lisas. Design exclusivo."></textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -146,14 +146,14 @@
                     <div>
                         <label for="vitrine-preco" class="block text-sm font-medium text-graphite-300 mb-1.5">Preço (R$)</label>
                         <input type="number" id="vitrine-preco" name="preco" step="0.01" min="0"
-                               class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                               class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                                placeholder="0 = Sob Consulta">
                     </div>
                 </div>
                 <div>
                     <label for="vitrine-tags" class="block text-sm font-medium text-graphite-300 mb-1.5">Tags (separadas por vírgula)</label>
                     <input type="text" id="vitrine-tags" name="tags"
-                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                           class="w-full bg-graphite-800 border border-graphite-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                            placeholder="Ex: holográfico, premium, edição-limitada">
                 </div>
                 <div id="vitrine-active-field" class="hidden">

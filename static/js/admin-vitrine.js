@@ -157,7 +157,7 @@ async function loadVitrine() {
                 <h3 class="font-semibold text-white text-sm truncate flex-1">${escapeHtml(fig.titulo)}</h3>
                 ${activeBadge}
               </div>
-              ${fig.descricao ? `<p class="text-graphite-400 text-xs line-clamp-2">${escapeHtml(fig.descricao)}</p>` : ""}
+              ${fig.descricao ? `<p class="text-graphite-300 text-xs line-clamp-2">${escapeHtml(fig.descricao)}</p>` : ""}
               ${tagsHtml ? `<div class="flex flex-wrap gap-1">${tagsHtml}</div>` : ""}
               <div class="flex items-center gap-2">
                 ${precoStr}

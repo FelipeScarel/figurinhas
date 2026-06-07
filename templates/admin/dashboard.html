@@ -24,9 +24,9 @@
                             800: '#8c7122', 900: '#725a1b', 950: '#544213',
                         },
                         graphite: {
-                            50: '#f4f4f5', 100: '#e4e4e7', 200: '#c9c9ce', 300: '#a1a1aa',
-                            400: '#71717a', 500: '#52525b', 600: '#3f3f46', 700: '#2a2a2e',
-                            800: '#1a1a1d', 850: '#151518', 900: '#121214', 950: '#0a0a0b',
+                            50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#a1a1aa',
+                            400: '#71717a', 500: '#52525b', 600: '#3f3f46', 700: '#27272a',
+                            800: '#1f1f23', 850: '#1c1c20', 900: '#18181b', 950: '#0f0f11',
                         }
                     }
                 }
@@ -47,11 +47,11 @@
                         <span class="font-bold text-white hidden sm:inline font-display">Admin</span>
                     </div>
                     <a href="/admin/dashboard" class="text-sm font-medium text-gold-400 border-b-2 border-gold-500 pb-0.5">Pedidos</a>
-                    <a href="/admin/vitrine" class="text-sm font-medium text-graphite-400 hover:text-white transition-colors">Vitrine</a>
+                    <a href="/admin/vitrine" class="text-sm font-medium text-graphite-300 hover:text-white transition-colors">Vitrine</a>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-graphite-400 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
-                    <a href="/" class="text-graphite-400 hover:text-white text-xs transition-colors">Site</a>
+                    <span class="text-graphite-300 text-xs hidden sm:inline">{{ session.get('admin_username', 'Admin') }}</span>
+                    <a href="/" class="text-graphite-300 hover:text-white text-xs transition-colors">Site</a>
                     <a href="{{ url_for('auth.logout') }}" class="text-red-400 hover:text-red-300 text-xs font-medium transition-colors">Sair</a>
                 </div>
             </div>
@@ -63,7 +63,7 @@
         <!-- Stats -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8" id="stats-grid">
             <div class="bg-graphite-800 border border-graphite-700 rounded-xl p-4">
-                <p class="text-graphite-400 text-xs font-medium uppercase tracking-wide">Total</p>
+                <p class="text-graphite-300 text-xs font-medium uppercase tracking-wide">Total</p>
                 <p class="text-2xl font-bold text-white mt-1" id="stat-total">-</p>
             </div>
             <div class="bg-graphite-800 border border-yellow-500/20 rounded-xl p-4">
@@ -93,7 +93,7 @@
             <div class="relative flex-1">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-graphite-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="text" id="search-input" placeholder="Buscar por nome ou WhatsApp..."
-                       class="w-full bg-graphite-800 border border-graphite-700 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all">
+                       class="w-full bg-graphite-800 border border-graphite-700 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-graphite-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all">
             </div>
             <button id="search-btn" class="bg-graphite-700 hover:bg-graphite-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-graphite-600 active:scale-95">
                 Buscar
@@ -106,13 +106,13 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-graphite-700 bg-graphite-850">
-                            <th class="text-left px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">ID</th>
-                            <th class="text-left px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Data</th>
-                            <th class="text-left px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Cliente</th>
-                            <th class="text-left px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Detalhes</th>
-                            <th class="text-center px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Arquivos</th>
-                            <th class="text-center px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Status</th>
-                            <th class="text-center px-4 py-3 text-graphite-400 font-medium text-xs uppercase tracking-wider">Ações</th>
+                            <th class="text-left px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">ID</th>
+                            <th class="text-left px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Data</th>
+                            <th class="text-left px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Cliente</th>
+                            <th class="text-left px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Detalhes</th>
+                            <th class="text-center px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Arquivos</th>
+                            <th class="text-center px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Status</th>
+                            <th class="text-center px-4 py-3 text-graphite-300 font-medium text-xs uppercase tracking-wider">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="orders-tbody" class="divide-y divide-graphite-700">
@@ -128,7 +128,7 @@
 
         <div id="empty-state" class="hidden text-center py-16">
             <div class="text-5xl mb-4">&#128230;</div>
-            <p class="text-graphite-400 text-lg">Nenhum pedido encontrado.</p>
+            <p class="text-graphite-300 text-lg">Nenhum pedido encontrado.</p>
         </div>
     </div>
 
@@ -137,7 +137,7 @@
         <div class="bg-graphite-800 border border-graphite-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-white font-display" id="modal-order-title">Pedido #—</h3>
-                <button onclick="closeOrderModal()" class="text-graphite-400 hover:text-white text-2xl leading-none">&times;</button>
+                <button onclick="closeOrderModal()" class="text-graphite-300 hover:text-white text-2xl leading-none">&times;</button>
             </div>
             <div id="modal-order-body" class="space-y-4"></div>
             <button onclick="closeOrderModal()" class="w-full mt-4 bg-graphite-700 hover:bg-graphite-600 text-white font-medium py-2.5 rounded-xl text-sm transition-all">Fechar</button>
