@@ -17,6 +17,15 @@ def create_admin(username, password):
     )
 
 
+def update_admin_password(username, password):
+    pw_hash = generate_password_hash(password)
+    query_db(
+        "UPDATE admins SET password_hash = ? WHERE username = ?",
+        (pw_hash, username),
+        commit=True,
+    )
+
+
 def verify_admin(username, password):
     admin = get_admin_by_username(username)
     if admin and check_password_hash(admin["password_hash"], password):

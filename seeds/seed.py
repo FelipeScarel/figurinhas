@@ -1,5 +1,5 @@
 from database import query_db
-from models.admin_model import get_admin_by_username, create_admin
+from models.admin_model import get_admin_by_username, create_admin, update_admin_password
 from config import Config
 
 
@@ -8,6 +8,9 @@ def seed_admin():
     if not existing:
         create_admin(Config.ADMIN_USERNAME, Config.ADMIN_PASSWORD)
         print(f"[SEED] Admin '{Config.ADMIN_USERNAME}' criado.")
+    else:
+        update_admin_password(Config.ADMIN_USERNAME, Config.ADMIN_PASSWORD)
+        print(f"[SEED] Senha do admin '{Config.ADMIN_USERNAME}' sincronizada.")
 
 
 def seed_categorias():
