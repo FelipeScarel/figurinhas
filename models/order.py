@@ -4,14 +4,17 @@ from database import query_db
 def create_order(data):
     return query_db(
         """INSERT INTO pedidos (cliente_nome, cliente_whatsapp, quantidade,
-                                tamanho_estimado, tipo_acabamento, urgencia,
+                                tamanho_estimado, largura_cm, altura_cm,
+                                tipo_acabamento, urgencia,
                                 referencia_figurinha_id, observacoes)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             data["cliente_nome"],
             data["cliente_whatsapp"],
             data["quantidade"],
             data.get("tamanho_estimado", ""),
+            data.get("largura_cm", ""),
+            data.get("altura_cm", ""),
             data["tipo_acabamento"],
             data.get("urgencia", ""),
             data.get("referencia_figurinha_id"),

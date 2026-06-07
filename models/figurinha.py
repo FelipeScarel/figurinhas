@@ -56,14 +56,15 @@ def get_all_figurinhas_admin(categoria_slug=None):
 
 def create_figurinha(data):
     return query_db(
-        """INSERT INTO figurinhas (titulo, descricao, url_imagem, categoria_id, preco)
-           VALUES (?, ?, ?, ?, ?)""",
+        """INSERT INTO figurinhas (titulo, descricao, url_imagem, categoria_id, preco, tags)
+           VALUES (?, ?, ?, ?, ?, ?)""",
         (
             data["titulo"],
             data.get("descricao", ""),
             data["url_imagem"],
             data.get("categoria_id"),
             data.get("preco"),
+            data.get("tags", "[]"),
         ),
         commit=True,
     )
@@ -72,7 +73,7 @@ def create_figurinha(data):
 def update_figurinha(figurinha_id, data):
     query_db(
         """UPDATE figurinhas SET titulo=?, descricao=?, url_imagem=?,
-           categoria_id=?, preco=?, is_active=?
+           categoria_id=?, preco=?, tags=?, is_active=?
            WHERE id=?""",
         (
             data["titulo"],
@@ -80,6 +81,7 @@ def update_figurinha(figurinha_id, data):
             data["url_imagem"],
             data.get("categoria_id"),
             data.get("preco"),
+            data.get("tags", "[]"),
             data.get("is_active", 1),
             figurinha_id,
         ),

@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { cn, formatPrice } from "@/lib/utils";
-import { Spotlight, SpotlightBorder } from "@/components/Spotlight";
-import QuoteForm from "@/components/QuoteForm";
-import UploadPanel from "@/components/UploadPanel";
+import { cn } from "@/lib/utils";
+import GalleryCard from "@/components/GalleryCard";
+import OrderConfigurator from "@/components/OrderConfigurator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,23 +15,11 @@ import {
   Palette,
   Truck,
   Zap,
-  ShoppingBag,
-  Upload,
+  Gem,
   ArrowRight,
+  Scissors,
+  Wand2,
 } from "lucide-react";
-
-// Dynamic import — zero SSR for 3D
-const Simulador3D = dynamic(() => import("@/components/Simulador3D"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[500px] flex items-center justify-center bg-black rounded-2xl border border-zinc-800/50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-2 border-pink-500/20 border-t-pink-500 animate-spin" />
-        <p className="text-xs text-zinc-600">Carregando simulador...</p>
-      </div>
-    </div>
-  ),
-});
 
 // ── Types ──────────────────────────────────────────────────
 interface Figurinha {
@@ -44,22 +30,52 @@ interface Figurinha {
   categoria_nome: string;
   categoria_slug: string;
   preco: number | null;
+  tags?: string;
 }
-
-type HelmetColor = "white" | "black";
 
 // ── Features ───────────────────────────────────────────────
 const FEATURES = [
-  { icon: Palette, title: "Acabamento Premium", desc: "Brilhante, Fosco, Refletivo, Holográfico" },
-  { icon: Shield, title: "Alta Durabilidade", desc: "Vinil resistente a sol, chuva e lavagem" },
-  { icon: Truck, title: "Envio para Todo Brasil", desc: "Rastreio grátis em todos os pedidos" },
-  { icon: Zap, title: "Produção Ágil", desc: "Seu pedido produzido em até 48h úteis" },
+  {
+    icon: Palette,
+    title: "Acabamento Premium",
+    desc: "Brilhante, Fosco Acetinado, Refletivo e Holográfico Luxo",
+  },
+  {
+    icon: Shield,
+    title: "Vinil de Alta Performance",
+    desc: "Resistente a sol, chuva, lavagem e uso intenso",
+  },
+  {
+    icon: Truck,
+    title: "Entrega para Todo Brasil",
+    desc: "Embalagem premium com rastreio gratuito",
+  },
+  {
+    icon: Gem,
+    title: "Design Exclusivo",
+    desc: "Cada peça é tratada como obra de arte única",
+  },
 ];
 
 const TESTIMONIALS = [
-  { initials: "RL", name: "Ricardo L.", detail: "Capacete LS2 Hornet", text: "As figurinhas ficaram insanas! Acabamento refletivo premium, entrega rápida. O simulador 3D ajudou demais a escolher." },
-  { initials: "MA", name: "Marcos A.", detail: "Grau ZN Crew", text: "Pedimos combo pra 3 capacetes. Ficou perfeito, geral elogiou no rolê. Qualidade absurda!" },
-  { initials: "JF", name: "Juliana F.", detail: "Notebook + Celular", text: "Mandei minha arte, vi no simulador como ficava e aprovei. Ficou exatamente igual. Já vou pedir mais!" },
+  {
+    initials: "RL",
+    name: "Ricardo L.",
+    detail: "Coleção Holográfica",
+    text: "Os adesivos holográficos ficaram incríveis na minha capinha. Qualidade premium de verdade, entrega super rápida e embalagem impecável.",
+  },
+  {
+    initials: "MA",
+    name: "Marina A.",
+    detail: "Kit Corporativo",
+    text: "Encomendei adesivos para o lançamento da minha marca. Acabamento refletivo premium, todos elogiaram. Já virei cliente fiel!",
+  },
+  {
+    initials: "JF",
+    name: "João F.",
+    detail: "Coleção Minimalista",
+    text: "O acabamento fosco acetinado é de outro nível. A vitrine é linda e o configurador tornou o pedido muito simples. Resultado perfeito.",
+  },
 ];
 
 // ── Navbar ─────────────────────────────────────────────────
@@ -76,40 +92,55 @@ function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled
-          ? "glass border-b border-zinc-800/50 py-3"
+          ? "glass border-b border-graphite-800/50 py-3"
           : "bg-transparent py-4"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white font-extrabold text-xs shadow-lg shadow-pink-500/20">
+        <a href="#" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-xs shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/30 transition-all">
             FS
           </div>
-          <span className="font-bold text-white hidden sm:inline">
-            Figurinhas<span className="text-pink-500">.</span>
+          <span className="font-bold text-white hidden sm:inline font-display text-lg">
+            Figurinhas<span className="text-gold-400">.</span>
           </span>
         </a>
 
         <div className="flex items-center gap-2">
-          <a href="#simulator">
-            <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
-              Simulador
+          <a href="#vitrine">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-graphite-400 hover:text-white"
+            >
+              Vitrine
             </Button>
           </a>
-          <a href="#gallery">
-            <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
-              Galeria
+          <a href="#configurador">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-graphite-400 hover:text-white"
+            >
+              Configurador
             </Button>
           </a>
           <a href="/admin/login" target="_blank">
-            <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-300 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-graphite-500 hover:text-graphite-300 text-xs"
+            >
               Admin
             </Button>
           </a>
-          <a href="#quote">
-            <Button size="sm" className="bg-pink-600 hover:bg-pink-500 text-white rounded-full px-5 shadow-lg shadow-pink-600/20">
-              <Upload className="w-3.5 h-3.5 mr-1.5" />
-              Upload
+          <a href="#configurador">
+            <Button
+              size="sm"
+              className="bg-gold-600 hover:bg-gold-500 text-graphite-900 rounded-full px-5 shadow-lg shadow-gold-600/15 font-semibold"
+            >
+              <Wand2 className="w-3.5 h-3.5 mr-1.5" />
+              Criar Pedido
             </Button>
           </a>
         </div>
@@ -120,15 +151,17 @@ function Navbar() {
 
 // ── Main Page ──────────────────────────────────────────────
 export default function Home() {
-  const [textureUrl, setTextureUrl] = useState<string | null>(null);
-  const [helmetColor, setHelmetColor] = useState<HelmetColor>("black");
-  const [decalScale, setDecalScale] = useState(1.0);
-  const [decalPosition, setDecalPosition] = useState<"front" | "top" | "left" | "right" | "back">("front");
-  const [finishType, setFinishType] = useState<"Brilhante" | "Fosco" | "Refletivo" | "Holográfico">("Brilhante");
   const [figurinhas, setFigurinhas] = useState<Figurinha[]>([]);
   const [activeCategoria, setActiveCategoria] = useState("all");
-  const [categorias, setCategorias] = useState<{ nome: string; slug: string }[]>([]);
-  const [refFigurinhaId, setRefFigurinhaId] = useState<number | null>(null);
+  const [categorias, setCategorias] = useState<{ nome: string; slug: string }[]>(
+    []
+  );
+  const [selectedFig, setSelectedFig] = useState<Figurinha | null>(null);
+
+  // Scroll parallax
+  const { scrollY } = useScroll();
+  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
+  const heroY = useTransform(scrollY, [0, 500], [0, -50]);
 
   // Fetch figurinhas from API
   useEffect(() => {
@@ -139,7 +172,10 @@ export default function Home() {
         const cats = new Map<string, { nome: string; slug: string }>();
         data.forEach((f) => {
           if (f.categoria_slug && !cats.has(f.categoria_slug)) {
-            cats.set(f.categoria_slug, { nome: f.categoria_nome, slug: f.categoria_slug });
+            cats.set(f.categoria_slug, {
+              nome: f.categoria_nome,
+              slug: f.categoria_slug,
+            });
           }
         });
         setCategorias(Array.from(cats.values()));
@@ -147,125 +183,126 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  // Handle gallery card click → inject into 3D simulator
-  function handleGalleryClick(fig: Figurinha) {
-    setRefFigurinhaId(fig.id);
-    if (fig.url_imagem) {
-      setTextureUrl(`http://127.0.0.1:5000/static/${fig.url_imagem}`);
-    }
-    // Scroll to simulator
-    document.getElementById("simulator")?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  // Handle texture upload from quote form
-  function handleTextureUpload(url: string) {
-    setTextureUrl(url);
-    setRefFigurinhaId(null);
-  }
-
   const filteredFigs =
     activeCategoria === "all"
       ? figurinhas
       : figurinhas.filter((f) => f.categoria_slug === activeCategoria);
 
+  function handleSelectFig(fig: Figurinha) {
+    setSelectedFig((prev) => (prev?.id === fig.id ? null : fig));
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-graphite-900 text-white overflow-x-hidden">
       <Navbar />
 
-      {/* ── HERO + SIMULATOR ─────────────────────────────── */}
-      <section
-        id="simulator"
-        className="relative min-h-screen flex items-center pt-24 pb-12"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(236,72,153,0.12),transparent)]" />
+      {/* ── HERO ─────────────────────────────────────────── */}
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-16">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(212,175,55,0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_50%,rgba(212,175,55,0.04),transparent)]" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-10 items-start">
-            {/* LEFT — 3D Viewer (3/5 width) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="lg:col-span-3 order-2 lg:order-1"
-            >
-              <SpotlightBorder className="w-full">
-                <div className="rounded-2xl overflow-hidden bg-[#050508] min-h-[450px] lg:min-h-[580px]">
-                  <Simulador3D
-                    textureUrl={textureUrl}
-                    helmetColor={helmetColor}
-                    decalScale={decalScale}
-                    decalPosition={decalPosition}
-                    finishType={finishType}
-                    onDecalPositionChange={setDecalPosition}
-                    className="w-full h-full"
-                  />
-                </div>
-              </SpotlightBorder>
-            </motion.div>
+        <motion.div
+          style={{ opacity: heroOpacity, y: heroY }}
+          className="relative z-10 max-w-4xl mx-auto px-4 text-center"
+        >
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="mb-6"
+          >
+            <Badge className="px-4 py-1.5 text-xs gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
+              <Sparkles className="w-3 h-3" />
+              Coleção Premium 2026
+            </Badge>
+          </motion.div>
 
-            {/* RIGHT — Upload Panel (2/5 width) */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
-              className="lg:col-span-2 order-1 lg:order-2"
-            >
-              {/* Title */}
-              <div className="mb-5">
-                <Badge className="mb-3 px-3 py-1 text-xs gap-1.5 border-pink-500/30 bg-pink-500/5 text-pink-300">
-                  <Sparkles className="w-3 h-3" />
-                  Simulador 3D
-                </Badge>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight mb-2">
-                  Visualize suas{" "}
-                  <span className="text-gradient-pink">figurinhas</span>
-                </h1>
-                <p className="text-zinc-500 text-sm leading-relaxed">
-                  Faça upload da sua arte e veja em <span className="text-zinc-300">tempo real</span> no capacete ou na capinha.
-                </p>
-              </div>
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight mb-6"
+          >
+            Adesivos de{" "}
+            <span className="text-gradient-gold">Luxo Premium</span>
+          </motion.h1>
 
-              {/* Upload + Config Panel */}
-              <UploadPanel
-                textureUrl={textureUrl}
-                helmetColor={helmetColor}
-                decalScale={decalScale}
-                decalPosition={decalPosition}
-                finishType={finishType}
-                onColorChange={setHelmetColor}
-                onTextureUpload={handleTextureUpload}
-                onScaleChange={setDecalScale}
-                onDecalPositionChange={setDecalPosition}
-                onFinishChange={setFinishType}
-              />
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.7 }}
+            className="text-base sm:text-lg text-graphite-400 max-w-2xl mx-auto leading-relaxed mb-8"
+          >
+            Do design minimalista ao holográfico. Peças exclusivas com{" "}
+            <span className="text-graphite-300">acabamentos premium</span>{" "}
+            que transformam superfícies em arte. Cada adesivo é tratado como
+            uma obra-prima.
+          </motion.p>
 
-              {/* Quick stats */}
-              <div className="flex items-center gap-5 mt-5 text-[10px] text-zinc-600">
-                {["+500 clientes", "Produção 48h", "Frete Grátis"].map((s) => (
-                  <span key={s} className="flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-pink-500/40" />
-                    {s}
-                  </span>
-                ))}
-                <a href="#gallery" className="text-pink-500 hover:text-pink-400 ml-auto flex items-center gap-1">
-                  Galeria <ArrowRight className="w-3 h-3" />
-                </a>
-              </div>
-            </motion.div>
-          </div>
-        </div>
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
+            className="flex items-center justify-center gap-4 flex-wrap"
+          >
+            <a href="#vitrine">
+              <Button
+                size="lg"
+                className="bg-gold-600 hover:bg-gold-500 text-graphite-900 rounded-full px-8 h-12 font-bold shadow-lg shadow-gold-600/15 hover:shadow-gold-500/25 transition-all text-sm"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Explorar Coleção
+              </Button>
+            </a>
+            <a href="#configurador">
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full px-8 h-12 border-graphite-700 text-graphite-300 hover:text-white hover:border-gold-500/30 transition-all text-sm"
+              >
+                Fazer Orçamento
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </a>
+          </motion.div>
 
+          {/* Quick stats */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+            className="flex items-center justify-center gap-8 mt-12 text-xs text-graphite-500"
+          >
+            {[
+              { icon: Scissors, label: "Corte Die-Cut" },
+              { icon: Shield, label: "Vinil Premium" },
+              { icon: Truck, label: "Frete Grátis Brasil" },
+            ].map(({ icon: Icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5">
+                <Icon className="w-3 h-3 text-gold-600/50" />
+                {label}
+              </span>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator */}
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-zinc-600"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-graphite-600"
         >
           <ChevronDown className="w-5 h-5" />
         </motion.div>
       </section>
 
       {/* ── FEATURES STRIP ────────────────────────────────── */}
-      <section className="py-16 border-t border-zinc-900">
+      <section className="py-16 border-t border-graphite-800/50">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4">
           {FEATURES.map((f, i) => (
             <motion.div
@@ -274,50 +311,22 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="text-center"
+              className="text-center group"
             >
-              <div className="w-10 h-10 rounded-xl bg-pink-500/5 border border-pink-500/10 flex items-center justify-center mx-auto mb-3">
-                <f.icon className="w-5 h-5 text-pink-400" />
+              <div className="w-12 h-12 rounded-xl bg-gold-500/5 border border-gold-500/10 flex items-center justify-center mx-auto mb-3 group-hover:border-gold-500/20 group-hover:bg-gold-500/10 transition-all duration-500">
+                <f.icon className="w-5 h-5 text-gold-400" />
               </div>
-              <h3 className="font-semibold text-sm text-white mb-1">{f.title}</h3>
-              <p className="text-xs text-zinc-500">{f.desc}</p>
+              <h3 className="font-semibold text-sm text-white mb-1">
+                {f.title}
+              </h3>
+              <p className="text-xs text-graphite-500">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* ── QUOTE FORM SECTION ────────────────────────────── */}
-      <section id="quote" className="py-20 border-t border-zinc-900">
-        <div className="max-w-2xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8"
-          >
-            <Badge variant="secondary" className="mb-4 gap-1.5">
-              <Zap className="w-3 h-3" />
-              Monte seu Orçamento
-            </Badge>
-            <h2 className="text-3xl font-bold text-gradient mb-2">
-              Pronto para pedir?
-            </h2>
-            <p className="text-zinc-500 text-sm">
-              {textureUrl
-                ? "Sua arte está no simulador 3D. Agora é só preencher os detalhes."
-                : "Faça upload da sua imagem e veja no simulador ao lado."}
-            </p>
-          </motion.div>
-
-          <QuoteForm
-            referenciaFigurinhaId={refFigurinhaId}
-            onTextureUpload={handleTextureUpload}
-          />
-        </div>
-      </section>
-
-      {/* ── GALLERY ───────────────────────────────────────── */}
-      <section id="gallery" className="py-20 border-t border-zinc-900">
+      {/* ── VITRINE / GALLERY ─────────────────────────────── */}
+      <section id="vitrine" className="py-20 border-t border-graphite-800/50">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -325,22 +334,28 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <Badge variant="secondary" className="mb-4">Galeria de Inspiração</Badge>
-            <h2 className="text-3xl font-bold text-gradient mb-2">Modelos em Destaque</h2>
-            <p className="text-zinc-500 text-sm">
-              Clique em qualquer modelo para testar no simulador 3D
+            <Badge className="mb-4 px-3 py-1 gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
+              <Gem className="w-3 h-3" />
+              Vitrine Premium
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
+              Coleção em Destaque
+            </h2>
+            <p className="text-graphite-500 text-sm max-w-xl mx-auto">
+              Explore nossa curadoria de designs exclusivos. Clique em qualquer
+              peça para selecioná-la e configurar seu pedido.
             </p>
           </motion.div>
 
-          {/* Filters */}
+          {/* Category Filters */}
           <div className="flex items-center justify-center gap-2 flex-wrap mb-10">
             <button
               onClick={() => setActiveCategoria("all")}
               className={cn(
-                "px-4 py-2 rounded-full text-xs font-semibold transition-all",
+                "px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300",
                 activeCategoria === "all"
-                  ? "bg-pink-600 text-white"
-                  : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
+                  ? "bg-gold-600 text-graphite-900 shadow-lg shadow-gold-600/15"
+                  : "bg-graphite-800 text-graphite-400 hover:text-white border border-graphite-700 hover:border-graphite-600"
               )}
             >
               Todos
@@ -350,10 +365,10 @@ export default function Home() {
                 key={cat.slug}
                 onClick={() => setActiveCategoria(cat.slug)}
                 className={cn(
-                  "px-4 py-2 rounded-full text-xs font-semibold transition-all",
+                  "px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300",
                   activeCategoria === cat.slug
-                    ? "bg-pink-600 text-white"
-                    : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
+                    ? "bg-gold-600 text-graphite-900 shadow-lg shadow-gold-600/15"
+                    : "bg-graphite-800 text-graphite-400 hover:text-white border border-graphite-700 hover:border-graphite-600"
                 )}
               >
                 {cat.nome}
@@ -361,83 +376,60 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Cards */}
+          {/* Gallery Grid */}
           {filteredFigs.length === 0 ? (
-            <div className="text-center py-16 text-zinc-600">
-              <p>Nenhum modelo encontrado.</p>
+            <div className="text-center py-16 text-graphite-600">
+              <Gem className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>Nenhum modelo encontrado nesta categoria.</p>
             </div>
           ) : (
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
               {filteredFigs.map((fig, i) => (
-                <motion.div
+                <GalleryCard
                   key={fig.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ delay: i * 0.04, duration: 0.5 }}
-                  className="break-inside-avoid cursor-pointer"
-                  onClick={() => handleGalleryClick(fig)}
-                >
-                  <Spotlight className="rounded-2xl" color="rgba(236,72,153,0.06)">
-                    <div className="glass rounded-2xl overflow-hidden group hover:border-pink-500/30 transition-all duration-500">
-                      <div className="aspect-[4/3] bg-zinc-900 overflow-hidden">
-                        {fig.url_imagem ? (
-                          <img
-                            src={`http://127.0.0.1:5000/static/${fig.url_imagem}`}
-                            alt={fig.titulo}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-700 text-sm">
-                            Sem imagem
-                          </div>
-                        )}
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                          <span className="text-white text-xs font-medium flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-pink-400" />
-                            Testar no Simulador 3D
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="font-semibold text-sm text-white truncate">
-                            {fig.titulo}
-                          </h3>
-                          {fig.categoria_nome && (
-                            <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700/50">
-                              {fig.categoria_nome}
-                            </span>
-                          )}
-                        </div>
-                        {fig.descricao && (
-                          <p className="text-xs text-zinc-500 mb-3 line-clamp-2">
-                            {fig.descricao}
-                          </p>
-                        )}
-                        {fig.preco ? (
-                          <Badge variant="success" className="text-xs">
-                            {formatPrice(fig.preco)}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">
-                            Valor a Consultar
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </Spotlight>
-                </motion.div>
+                  figurinha={fig}
+                  index={i}
+                  isSelected={selectedFig?.id === fig.id}
+                  onSelect={handleSelectFig}
+                />
               ))}
             </div>
           )}
         </div>
       </section>
 
+      {/* ── ORDER CONFIGURATOR ────────────────────────────── */}
+      <section
+        id="configurador"
+        className="py-20 border-t border-graphite-800/50"
+      >
+        <div className="max-w-2xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <Badge className="mb-4 px-3 py-1 gap-1.5 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
+              <Wand2 className="w-3 h-3" />
+              Configurador de Pedido
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-gold mb-3 font-display">
+              Monte Seu Adesivo
+            </h2>
+            <p className="text-graphite-500 text-sm">
+              {selectedFig
+                ? `Modelo "${selectedFig.titulo}" selecionado. Configure abaixo.`
+                : "Escolha um modelo na vitrine ou faça upload da sua arte."}
+            </p>
+          </motion.div>
+
+          <OrderConfigurator selectedFigurinha={selectedFig} />
+        </div>
+      </section>
+
       {/* ── TESTIMONIALS ──────────────────────────────────── */}
-      <section className="py-20 border-t border-zinc-900">
+      <section className="py-20 border-t border-graphite-800/50">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -445,8 +437,16 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="secondary" className="mb-4">Prova Social</Badge>
-            <h2 className="text-3xl font-bold text-gradient">Clientes Satisfeitos</h2>
+            <Badge className="mb-4 px-3 py-1 border-gold-500/20 bg-gold-500/5 text-gold-400 font-medium">
+              <Star className="w-3 h-3 fill-gold-400" />
+              Prova Social
+            </Badge>
+            <h2 className="text-3xl font-bold text-gradient mb-2 font-display">
+              Clientes Satisfeitos
+            </h2>
+            <p className="text-graphite-500 text-sm">
+              O que dizem sobre nossos adesivos premium
+            </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -458,27 +458,27 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Spotlight className="rounded-2xl" color="rgba(236,72,153,0.04)">
-                  <div className="glass rounded-2xl p-6 h-full">
-                    <div className="flex items-center gap-1 mb-4 text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                      ))}
+                <div className="glass rounded-2xl p-6 h-full hover:border-gold-500/10 transition-all duration-500">
+                  <div className="flex items-center gap-1 mb-4 text-gold-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-graphite-400 leading-relaxed mb-4">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-bold text-xs">
+                      {t.initials}
                     </div>
-                    <p className="text-sm text-zinc-400 leading-relaxed mb-4">
-                      &ldquo;{t.text}&rdquo;
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
-                        {t.initials}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-white">{t.name}</p>
-                        <p className="text-xs text-zinc-500">{t.detail}</p>
-                      </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {t.name}
+                      </p>
+                      <p className="text-xs text-graphite-500">{t.detail}</p>
                     </div>
                   </div>
-                </Spotlight>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -486,18 +486,39 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────── */}
-      <footer className="border-t border-zinc-900 py-10">
+      <footer className="border-t border-graphite-800/50 py-12">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white font-extrabold text-xs shadow-lg shadow-pink-500/20">
+          <div className="flex items-center justify-center gap-2.5 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-graphite-900 font-extrabold text-sm shadow-lg shadow-gold-500/20">
               FS
             </div>
-            <span className="font-bold text-white">
-              Figurinhas<span className="text-pink-500">.</span>
+            <span className="font-bold text-white text-lg font-display">
+              Figurinhas<span className="text-gold-400">.</span>
             </span>
           </div>
-          <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} Figurinhas Adesivas. Todos os direitos reservados.
+          <p className="text-sm text-graphite-500 mb-6">
+            Adesivos premium personalizados. Qualidade, design e sofisticação.
+          </p>
+          <div className="flex items-center justify-center gap-6 text-xs text-graphite-600">
+            <a href="#vitrine" className="hover:text-gold-400 transition-colors">
+              Vitrine
+            </a>
+            <a
+              href="#configurador"
+              className="hover:text-gold-400 transition-colors"
+            >
+              Configurador
+            </a>
+            <a
+              href="/admin/login"
+              className="hover:text-gold-400 transition-colors"
+            >
+              Admin
+            </a>
+          </div>
+          <p className="text-xs text-graphite-700 mt-6">
+            © {new Date().getFullYear()} Figurinhas Premium. Todos os direitos
+            reservados.
           </p>
         </div>
       </footer>

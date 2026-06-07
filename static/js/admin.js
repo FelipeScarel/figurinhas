@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tbody) return;
 
     tbody.innerHTML =
-      '<tr><td colspan="7" class="text-center py-12 text-surface-500"><span class="spinner inline-block w-5 h-5 border-2 border-surface-600 border-t-brand-500 rounded-full"></span></td></tr>';
+      '<tr><td colspan="7" class="text-center py-12 text-graphite-500"><span class="spinner inline-block w-5 h-5 border-2 border-graphite-600 border-t-gold-500 rounded-full"></span></td></tr>';
 
     try {
       let url = "/admin/api/pedidos";
@@ -62,29 +62,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const arquivosHtml = order.arquivos && order.arquivos.length > 0
           ? order.arquivos.map(a =>
-              `<a href="/static/${a.arquivo_path}" target="_blank" class="inline-block text-brand-400 hover:text-brand-300 text-xs ml-1" title="${escapeHtml(a.nome_original || '')}">&#128206;</a>`
+              `<a href="/static/${a.arquivo_path}" target="_blank" class="inline-block text-gold-400 hover:text-gold-300 text-xs ml-1" title="${escapeHtml(a.nome_original || '')}">&#128206;</a>`
             ).join("")
-          : '<span class="text-surface-600 text-xs">—</span>';
+          : '<span class="text-graphite-600 text-xs">—</span>';
 
         const refTitle = order.referencia_titulo
-          ? `<span class="text-surface-500 text-xs">${escapeHtml(order.referencia_titulo)}</span>`
+          ? `<span class="text-graphite-500 text-xs">${escapeHtml(order.referencia_titulo)}</span>`
           : "";
 
         const qtdUrgencia = order.urgencia
-          ? `<span class="text-surface-400 text-[10px]">${escapeHtml(order.urgencia)}</span>`
+          ? `<span class="text-graphite-400 text-[10px]">${escapeHtml(order.urgencia)}</span>`
           : "";
 
         return `
-          <tr class="hover:bg-surface-850/50 transition-colors">
-            <td class="px-4 py-3 text-surface-400 font-mono text-xs">#${order.id}${urgencyBadge}</td>
-            <td class="px-4 py-3 text-surface-300 text-xs whitespace-nowrap">${dateStr}</td>
+          <tr class="hover:bg-graphite-850/50 transition-colors">
+            <td class="px-4 py-3 text-graphite-400 font-mono text-xs">#${order.id}${urgencyBadge}</td>
+            <td class="px-4 py-3 text-graphite-300 text-xs whitespace-nowrap">${dateStr}</td>
             <td class="px-4 py-3">
               <p class="text-white text-sm font-medium">${escapeHtml(order.cliente_nome)}</p>
               ${refTitle}
             </td>
             <td class="px-4 py-3">
-              <p class="text-surface-300 text-xs">${escapeHtml(order.cliente_whatsapp)}</p>
-              <p class="text-surface-300 text-xs">Qtd: <span class="text-white font-semibold">${order.quantidade}</span> | ${escapeHtml(order.tipo_acabamento)}</p>
+              <p class="text-graphite-300 text-xs">${escapeHtml(order.cliente_whatsapp)}</p>
+              <p class="text-graphite-300 text-xs">Qtd: <span class="text-white font-semibold">${order.quantidade}</span> | ${escapeHtml(order.tipo_acabamento)}</p>
               ${qtdUrgencia}
             </td>
             <td class="px-4 py-3 text-center">${arquivosHtml}</td>
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </td>
             <td class="px-4 py-3 text-center">
               <button onclick='openOrderModal(${JSON.stringify(order).replace(/'/g, "&#39;")})'
-                      class="text-brand-400 hover:text-brand-300 text-xs font-medium transition-colors">
+                      class="text-gold-400 hover:text-gold-300 text-xs font-medium transition-colors">
                 Detalhes
               </button>
             </td>
@@ -181,78 +181,78 @@ function openOrderModal(order) {
 
   const arquivosList = order.arquivos && order.arquivos.length > 0
     ? order.arquivos.map(a =>
-        `<div class="flex items-center justify-between bg-surface-800 rounded-lg px-3 py-2">
-           <span class="text-surface-300 text-xs">${escapeHtml(a.nome_original || 'Arquivo')}</span>
-           <a href="/static/${a.arquivo_path}" target="_blank" class="text-brand-400 hover:text-brand-300 text-xs font-medium">Download</a>
+        `<div class="flex items-center justify-between bg-graphite-800 rounded-lg px-3 py-2">
+           <span class="text-graphite-300 text-xs">${escapeHtml(a.nome_original || 'Arquivo')}</span>
+           <a href="/static/${a.arquivo_path}" target="_blank" class="text-gold-400 hover:text-gold-300 text-xs font-medium">Download</a>
          </div>`
       ).join("")
-    : '<p class="text-surface-500 text-xs">Nenhum arquivo enviado</p>';
+    : '<p class="text-graphite-500 text-xs">Nenhum arquivo enviado</p>';
 
   const urgencyLevel = order.urgencia
-    ? `<span class="px-2 py-1 rounded-lg text-xs font-bold ${order.urgencia.includes('Urgente') ? 'bg-red-600/20 text-red-400 border border-red-600/30' : 'bg-surface-800 text-surface-300'}">${escapeHtml(order.urgencia)}</span>`
-    : '<span class="text-surface-500 text-xs">Normal</span>';
+    ? `<span class="px-2 py-1 rounded-lg text-xs font-bold ${order.urgencia.includes('Urgente') ? 'bg-red-600/20 text-red-400 border border-red-600/30' : 'bg-graphite-800 text-graphite-300'}">${escapeHtml(order.urgencia)}</span>`
+    : '<span class="text-graphite-500 text-xs">Normal</span>';
 
   document.getElementById("modal-order-body").innerHTML = `
     <div class="grid grid-cols-2 gap-3 text-sm">
-      <div class="bg-surface-800 rounded-xl p-3">
-        <p class="text-surface-400 text-xs mb-1">Cliente</p>
+      <div class="bg-graphite-800 rounded-xl p-3">
+        <p class="text-graphite-400 text-xs mb-1">Cliente</p>
         <p class="text-white font-medium">${escapeHtml(order.cliente_nome)}</p>
-        <p class="text-surface-400 text-xs">${escapeHtml(order.cliente_whatsapp)}</p>
+        <p class="text-graphite-400 text-xs">${escapeHtml(order.cliente_whatsapp)}</p>
       </div>
-      <div class="bg-surface-800 rounded-xl p-3">
-        <p class="text-surface-400 text-xs mb-1">Pedido</p>
+      <div class="bg-graphite-800 rounded-xl p-3">
+        <p class="text-graphite-400 text-xs mb-1">Pedido</p>
         <p class="text-white">${order.quantidade} un. | ${escapeHtml(order.tipo_acabamento)}</p>
-        <p class="text-surface-400 text-xs">${escapeHtml(order.tamanho_estimado || 'Tamanho não informado')}</p>
+        <p class="text-graphite-400 text-xs">${escapeHtml(order.tamanho_estimado || 'Tamanho não informado')}</p>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 text-sm">
-      <div class="bg-surface-800 rounded-xl p-3">
-        <p class="text-surface-400 text-xs mb-1">Status</p>
+      <div class="bg-graphite-800 rounded-xl p-3">
+        <p class="text-graphite-400 text-xs mb-1">Status</p>
         <span class="px-2 py-1 rounded-lg text-xs font-semibold ${getStatusClassInline(order.status)}">${escapeHtml(order.status)}</span>
       </div>
-      <div class="bg-surface-800 rounded-xl p-3">
-        <p class="text-surface-400 text-xs mb-1">Urgência</p>
+      <div class="bg-graphite-800 rounded-xl p-3">
+        <p class="text-graphite-400 text-xs mb-1">Urgência</p>
         ${urgencyLevel}
       </div>
     </div>
 
-    <div class="bg-surface-800 rounded-xl p-3 text-sm">
-      <p class="text-surface-400 text-xs mb-1">Data</p>
+    <div class="bg-graphite-800 rounded-xl p-3 text-sm">
+      <p class="text-graphite-400 text-xs mb-1">Data</p>
       <p class="text-white">${dateStr}</p>
-      ${order.observacoes ? `<p class="text-surface-400 text-xs mt-1">Obs: ${escapeHtml(order.observacoes)}</p>` : ""}
+      ${order.observacoes ? `<p class="text-graphite-400 text-xs mt-1">Obs: ${escapeHtml(order.observacoes)}</p>` : ""}
     </div>
 
-    <div class="bg-surface-800 rounded-xl p-3 text-sm">
-      <p class="text-surface-400 text-xs mb-1">Arquivos Enviados</p>
+    <div class="bg-graphite-800 rounded-xl p-3 text-sm">
+      <p class="text-graphite-400 text-xs mb-1">Arquivos Enviados</p>
       ${arquivosList}
     </div>
 
     <!-- Internal Notes -->
-    <div class="bg-surface-800 rounded-xl p-3 text-sm">
-      <p class="text-surface-400 text-xs mb-2">Anotações Internas</p>
+    <div class="bg-graphite-800 rounded-xl p-3 text-sm">
+      <p class="text-graphite-400 text-xs mb-2">Anotações Internas</p>
       <textarea id="modal-anotacoes" rows="2"
-                class="w-full bg-surface-900 border border-surface-700 rounded-lg px-3 py-2 text-white text-xs placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-none"
+                class="w-full bg-graphite-900 border border-graphite-700 rounded-lg px-3 py-2 text-white text-xs placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-none"
                 placeholder="Ex: Usar vinil refletivo premium, enviar amostra antes...">${escapeHtml(order.anotacoes_internas || '')}</textarea>
     </div>
 
     <!-- Payment Link -->
-    <div class="bg-surface-800 rounded-xl p-3 text-sm">
-      <p class="text-surface-400 text-xs mb-2">Link de Pagamento (Mercado Pago/Pix)</p>
+    <div class="bg-graphite-800 rounded-xl p-3 text-sm">
+      <p class="text-graphite-400 text-xs mb-2">Link de Pagamento (Mercado Pago/Pix)</p>
       <input type="text" id="modal-link-pagamento"
-             class="w-full bg-surface-900 border border-surface-700 rounded-lg px-3 py-2 text-white text-xs placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+             class="w-full bg-graphite-900 border border-graphite-700 rounded-lg px-3 py-2 text-white text-xs placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
              placeholder="https://mpago.la/..."
              value="${escapeHtml(order.link_pagamento || '')}">
     </div>
 
     <button onclick="saveOrderNotes(${order.id})"
-            class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]">
+            class="w-full bg-gold-600 hover:bg-gold-500 text-white font-semibold py-2.5 rounded-xl transition-all text-sm active:scale-[0.98]">
       Salvar Anotações
     </button>
 
     ${order.link_pagamento ? `
     <button onclick="navigator.clipboard.writeText('${escapeHtml(order.link_pagamento)}');showToast('Link copiado!','success')"
-            class="w-full bg-surface-700 hover:bg-surface-600 text-white font-medium py-2 rounded-xl text-sm transition-all">
+            class="w-full bg-graphite-700 hover:bg-graphite-600 text-white font-medium py-2 rounded-xl text-sm transition-all">
       Copiar Link de Pagamento
     </button>` : ""}
   `;

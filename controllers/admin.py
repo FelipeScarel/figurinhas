@@ -96,6 +96,7 @@ def api_create_vitrine():
         descricao = request.form.get("descricao", "").strip()
         categoria_id = request.form.get("categoria_id", "").strip() or None
         preco = request.form.get("preco", "").strip() or None
+        tags = request.form.get("tags", "").strip() or "[]"
 
         if not titulo:
             return jsonify({"success": False, "error": "Título é obrigatório."}), 400
@@ -116,6 +117,7 @@ def api_create_vitrine():
             "url_imagem": url_imagem,
             "categoria_id": int(categoria_id) if categoria_id else None,
             "preco": float(preco) if preco else None,
+            "tags": tags,
         }
 
         fig_id = create_figurinha(data)
@@ -137,6 +139,7 @@ def api_update_vitrine(fig_id):
         descricao = request.form.get("descricao", "").strip()
         categoria_id = request.form.get("categoria_id", "").strip() or None
         preco = request.form.get("preco", "").strip() or None
+        tags = request.form.get("tags", "").strip() or "[]"
         is_active = request.form.get("is_active", "1")
 
         if not titulo:
@@ -155,6 +158,7 @@ def api_update_vitrine(fig_id):
             "url_imagem": url_imagem,
             "categoria_id": int(categoria_id) if categoria_id else None,
             "preco": float(preco) if preco else None,
+            "tags": tags,
             "is_active": int(is_active),
         }
 

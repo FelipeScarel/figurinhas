@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS figurinhas (
     url_imagem TEXT NOT NULL,
     categoria_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
     preco DECIMAL(10,2) DEFAULT NULL,
+    tags TEXT DEFAULT '[]',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -22,6 +23,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
     cliente_whatsapp TEXT NOT NULL,
     quantidade INTEGER NOT NULL,
     tamanho_estimado TEXT,
+    largura_cm TEXT,
+    altura_cm TEXT,
     tipo_acabamento TEXT NOT NULL,
     urgencia TEXT,
     referencia_figurinha_id INTEGER REFERENCES figurinhas(id) ON DELETE SET NULL,

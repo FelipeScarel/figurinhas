@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Filter buttons
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      filterBtns.forEach((b) => b.classList.remove("active", "bg-brand-600", "text-white"));
-      btn.classList.add("active", "bg-brand-600", "text-white");
+      filterBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
       currentFilter = btn.dataset.vitrineFilter;
       loadVitrine();
     });
@@ -53,8 +53,20 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const editId = document.getElementById("vitrine-edit-id").value;
     const formData = new FormData(form);
-    const isEdit = !!editId;
 
+    // Serialize tags from string to JSON array
+    const tagsInput = document.getElementById("vitrine-tags");
+    if (tagsInput) {
+      const raw = tagsInput.value.trim();
+      if (raw) {
+        const tagsArray = raw.split(",").map(t => t.trim()).filter(Boolean);
+        formData.set("tags", JSON.stringify(tagsArray));
+      } else {
+        formData.set("tags", "[]");
+      }
+    }
+
+    const isEdit = !!editId;
     const url = isEdit ? `/admin/api/vitrine/${editId}` : "/admin/api/vitrine";
     const method = isEdit ? "PUT" : "POST";
 
@@ -113,41 +125,51 @@ async function loadVitrine() {
     grid.innerHTML = figurinhas
       .map((fig) => {
         const precoStr = fig.preco
-          ? `<span class="px-2 py-0.5 rounded-lg bg-emerald-950/50 text-emerald-300 text-xs font-bold border border-emerald-800/30">R$ ${parseFloat(fig.preco).toFixed(2)}</span>`
-          : `<span class="px-2 py-0.5 rounded-lg bg-surface-700 text-surface-400 text-xs">Sem preço</span>`;
+          ? `<span class="px-2 py-0.5 rounded-lg bg-emerald-600/10 text-emerald-400 text-xs font-bold border border-emerald-600/20">R$ ${parseFloat(fig.preco).toFixed(2)}</span>`
+          : `<span class="px-2 py-0.5 rounded-lg bg-gold-500/5 text-gold-400 text-xs border border-gold-500/15">Valor sob Consulta</span>`;
 
         const activeBadge = fig.is_active
-          ? '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-600/20 text-emerald-400">Ativo</span>'
-          : '<span class="px-2 py-0.5 rounded text-[10px] bg-red-600/20 text-red-400">Inativo</span>';
+          ? '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-600/10 text-emerald-400 border border-emerald-600/20">Ativo</span>'
+          : '<span class="px-2 py-0.5 rounded text-[10px] bg-red-600/10 text-red-400 border border-red-600/20">Inativo</span>';
 
         const catBadge = fig.categoria_nome
-          ? `<span class="px-2 py-0.5 rounded text-[10px] bg-surface-800 text-surface-300 border border-surface-700">${escapeHtml(fig.categoria_nome)}</span>`
+          ? `<span class="px-2 py-0.5 rounded text-[10px] bg-graphite-700 text-graphite-300 border border-graphite-600">${escapeHtml(fig.categoria_nome)}</span>`
           : "";
 
+        // Parse tags
+        let tagsHtml = "";
+        try {
+          const tags = JSON.parse(fig.tags || "[]");
+          if (tags.length > 0) {
+            tagsHtml = tags.map(t => `<span class="px-1.5 py-0.5 rounded text-[10px] bg-gold-500/5 text-gold-300 border border-gold-500/10">${escapeHtml(t)}</span>`).join("");
+          }
+        } catch (e) { /* ignore */ }
+
         return `
-          <div class="bg-surface-900 border border-surface-800 rounded-2xl overflow-hidden hover:border-surface-700 transition-all group">
-            <div class="aspect-[4/3] bg-surface-800 flex items-center justify-center overflow-hidden">
+          <div class="bg-graphite-800 border border-graphite-700 rounded-2xl overflow-hidden hover:border-gold-500/20 transition-all group">
+            <div class="aspect-[4/3] bg-graphite-700 flex items-center justify-center overflow-hidden">
               ${fig.url_imagem
                 ? `<img src="/static/${fig.url_imagem}" alt="${escapeHtml(fig.titulo)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">`
-                : '<span class="text-surface-600 text-xs">Sem imagem</span>'}
+                : '<span class="text-graphite-500 text-xs">Sem imagem</span>'}
             </div>
             <div class="p-4 space-y-2">
               <div class="flex items-start justify-between gap-2">
                 <h3 class="font-semibold text-white text-sm truncate flex-1">${escapeHtml(fig.titulo)}</h3>
                 ${activeBadge}
               </div>
-              ${fig.descricao ? `<p class="text-surface-400 text-xs line-clamp-2">${escapeHtml(fig.descricao)}</p>` : ""}
+              ${fig.descricao ? `<p class="text-graphite-400 text-xs line-clamp-2">${escapeHtml(fig.descricao)}</p>` : ""}
+              ${tagsHtml ? `<div class="flex flex-wrap gap-1">${tagsHtml}</div>` : ""}
               <div class="flex items-center gap-2">
                 ${precoStr}
                 ${catBadge}
               </div>
               <div class="flex gap-2 pt-1">
                 <button onclick='editVitrine(${JSON.stringify(fig).replace(/'/g, "&#39;")})'
-                        class="flex-1 bg-surface-800 hover:bg-surface-700 text-white text-xs font-medium py-2 rounded-lg transition-all">
+                        class="flex-1 bg-graphite-700 hover:bg-graphite-600 text-white text-xs font-medium py-2 rounded-lg transition-all">
                   Editar
                 </button>
                 <button onclick="deleteVitrine(${fig.id}, '${escapeHtml(fig.titulo)}')"
-                        class="bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-all border border-red-700/30 hover:border-red-600">
+                        class="bg-red-600/10 hover:bg-red-600/30 text-red-400 hover:text-red-300 text-xs font-medium px-3 py-2 rounded-lg transition-all border border-red-700/20 hover:border-red-600/40">
                   Excluir
                 </button>
               </div>
@@ -167,6 +189,21 @@ function openVitrineForm(figData) {
   document.getElementById("vitrine-titulo").value = figData ? figData.titulo : "";
   document.getElementById("vitrine-descricao").value = figData ? (figData.descricao || "") : "";
   document.getElementById("vitrine-preco").value = figData && figData.preco ? figData.preco : "";
+
+  // Tags
+  const tagsInput = document.getElementById("vitrine-tags");
+  if (tagsInput) {
+    if (figData && figData.tags) {
+      try {
+        const tags = JSON.parse(figData.tags);
+        tagsInput.value = Array.isArray(tags) ? tags.join(", ") : "";
+      } catch (e) {
+        tagsInput.value = "";
+      }
+    } else {
+      tagsInput.value = "";
+    }
+  }
 
   if (figData && figData.categoria_id) {
     document.getElementById("vitrine-categoria").value = figData.categoria_id;

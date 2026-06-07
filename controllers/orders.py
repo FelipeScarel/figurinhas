@@ -28,6 +28,8 @@ def api_create_order():
         cliente_whatsapp = request.form.get("cliente_whatsapp", "").strip()
         quantidade = request.form.get("quantidade", "").strip()
         tamanho_estimado = request.form.get("tamanho_estimado", "").strip()
+        largura_cm = request.form.get("largura_cm", "").strip()
+        altura_cm = request.form.get("altura_cm", "").strip()
         tipo_acabamento = request.form.get("tipo_acabamento", "").strip()
         urgencia = request.form.get("urgencia", "").strip()
         referencia_figurinha_id = request.form.get("referencia_figurinha_id", "").strip() or None
@@ -51,6 +53,8 @@ def api_create_order():
             "cliente_whatsapp": cliente_whatsapp,
             "quantidade": int(quantidade),
             "tamanho_estimado": tamanho_estimado,
+            "largura_cm": largura_cm,
+            "altura_cm": altura_cm,
             "tipo_acabamento": tipo_acabamento,
             "urgencia": urgencia,
             "referencia_figurinha_id": int(referencia_figurinha_id) if referencia_figurinha_id else None,

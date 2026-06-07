@@ -1,8 +1,8 @@
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #475569; }
+::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
 
 /* Smooth scroll */
 html { scroll-behavior: smooth; }
@@ -23,14 +23,14 @@ html { scroll-behavior: smooth; }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Filter button active state */
-.filter-btn.active { background-color: #db2777 !important; color: white !important; }
+.filter-btn.active { background-color: #D4AF37 !important; color: #121214 !important; }
 
 /* Status badge colors */
-.status-Pendente { background-color: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
-.status-Em { background-color: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-.status-Orçamento { background-color: rgba(34,211,238,0.15); color: #22d3ee; border: 1px solid rgba(34,211,238,0.3); }
-.status-Em-Produção { background-color: rgba(168,85,247,0.15); color: #a78bfa; border: 1px solid rgba(168,85,247,0.3); }
-.status-Finalizado { background-color: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+.status-Pendente { background-color: rgba(234,179,8,0.15); color: #fde047; border: 1px solid rgba(234,179,8,0.25); }
+.status-Em { background-color: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+.status-Orçamento { background-color: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.25); }
+.status-Em-Produção { background-color: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.25); }
+.status-Finalizado { background-color: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
 
 /* Loading spinner */
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -38,3 +38,13 @@ html { scroll-behavior: smooth; }
 
 /* Select styling for Firefox */
 select { -moz-appearance: none; text-indent: 0.01px; text-overflow: ''; }
+
+/* Toast message */
+.toast-msg { animation: toastIn 0.3s ease-out; }
+@keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Vitrine filter active */
+.vitrine-filter-btn.active { background-color: #D4AF37 !important; color: #121214 !important; }

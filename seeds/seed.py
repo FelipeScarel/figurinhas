@@ -12,12 +12,12 @@ def seed_admin():
 
 def seed_categorias():
     categorias = [
-        ("Grau e Empinamento", "grau"),
-        ("Capacetes Esportivos", "capacetes"),
-        ("Marcas e Logos", "marcas"),
-        ("Frases e Humor", "frases"),
-        ("Cascatas e Manobras", "cascatas"),
-        ("Corte de Giro", "corte-de-giro"),
+        ("Coleções Exclusivas", "colecoes-exclusivas"),
+        ("Minimalistas", "minimalistas"),
+        ("Holográficos Premium", "holograficos-premium"),
+        ("Arte Custom", "arte-custom"),
+        ("Edições Limitadas", "edicoes-limitadas"),
+        ("Clássicos", "classicos"),
     ]
     for nome, slug in categorias:
         existing = query_db("SELECT id FROM categorias WHERE slug = ?", (slug,), one=True)
