@@ -46,11 +46,14 @@ def init_db():
             cur.execute(f.read())
         conn.commit()
 
-        # ── Migrations: add columns that may not exist on existing DBs ─
+        # ── Migrations: add columns / fix types for existing DBs ─
         migrations = [
             "ALTER TABLE figurinhas ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '[]'",
             "ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS largura_cm TEXT",
             "ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS altura_cm TEXT",
+            # Fix is_active: was BOOLEAN, needs to be INTEGER for Python compatibility
+            "ALTER TABLE figurinhas ALTER COLUMN is_active TYPE INTEGER USING CASE WHEN is_active THEN 1 ELSE 0 END",
+            "ALTER TABLE figurinhas ALTER COLUMN is_active SET DEFAULT 1",
         ]
         for m in migrations:
             try:
