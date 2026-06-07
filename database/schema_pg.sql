@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS figurinhas (
     categoria_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
     preco DECIMAL(10,2) DEFAULT NULL,
     tags TEXT DEFAULT '[]',
-    is_active INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW()
 );
 

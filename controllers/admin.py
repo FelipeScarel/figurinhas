@@ -159,7 +159,7 @@ def api_update_vitrine(fig_id):
             "categoria_id": int(categoria_id) if categoria_id else None,
             "preco": float(preco) if preco else None,
             "tags": tags,
-            "is_active": int(is_active),
+            "is_active": bool(int(is_active)),
         }
 
         update_figurinha(fig_id, data)
